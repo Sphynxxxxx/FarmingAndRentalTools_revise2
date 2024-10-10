@@ -1,0 +1,309 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600&display=swap');
+
+:root{
+   --green:#27ae60;
+   --black:#333;
+   --white:#fff;
+   --bg-color:#eee;
+   --box-shadow:0 .5rem 1rem rgba(0,0,0,.1);
+   --border:.1rem solid var(--black);
+}
+
+*{
+   font-family: 'Poppins', sans-serif;
+   margin:0; padding:0;
+   box-sizing: border-box;
+   outline: none; border:none;
+   text-decoration: none;
+   text-transform: capitalize;
+}
+
+html{
+   font-size: 62.5%;
+   overflow-x: hidden;
+}
+
+body {
+   background-color: var(--bg-color);
+}
+
+nav {
+   background-color: var(--black);
+   padding: 1rem 2rem;
+   box-shadow: var(--box-shadow);
+}
+
+nav ul {
+   list-style: none;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+}
+
+nav ul li {
+   margin: 0 1rem;
+}
+
+nav ul li a {
+   color: var(--white);
+   font-size: 1.8rem;
+   padding: 0.5rem 1rem;
+   border-radius: .5rem;
+   transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover {
+   background-color: var(--green);
+}
+
+.btn{
+   display: block;
+   width: 100%;
+   cursor: pointer;
+   border-radius: .5rem;
+   margin-top: 1rem;
+   font-size: 1.7rem;
+   padding:1rem 3rem;
+   background: var(--green);
+   color:var(--white);
+   text-align: center;
+}
+
+.btn:hover{
+   background: var(--black);
+}
+
+.message{
+   display: block;
+   background: var(--bg-color);
+   padding:1.5rem 1rem;
+   font-size: 2rem;
+   color:var(--black);
+   margin-bottom: 2rem;
+   text-align: center;
+}
+
+.container{
+   max-width: 1200px;
+   padding:2rem;
+   margin:0 auto;
+}
+
+.admin-product-form-container.centered{
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   min-height: 100vh;
+   
+}
+
+.admin-product-form-container form{
+   max-width: 50rem;
+   margin:0 auto;
+   padding:2rem;
+   border-radius: .5rem;
+   background: var(--bg-color);
+}
+
+.admin-product-form-container form h3{
+   text-transform: uppercase;
+   color:var(--black);
+   margin-bottom: 1rem;
+   text-align: center;
+   font-size: 2.5rem;
+}
+
+.admin-product-form-container form .box{
+   width: 100%;
+   border-radius: .5rem;
+   padding:1.2rem 1.5rem;
+   font-size: 1.7rem;
+   margin:1rem 0;
+   background: var(--white);
+   text-transform: none;
+}
+
+.product-display{
+   margin:2rem 0;
+}
+
+.product-display .product-display-table{
+   width: 100%;
+   text-align: center;
+}
+
+.product-display .product-display-table thead{
+   background: var(--bg-color);
+}
+
+.product-display .product-display-table th{
+   padding:1rem;
+   font-size: 2rem;
+}
+
+.product-display .product-display-table td{
+   padding:1rem;
+   font-size: 2rem;
+   border-bottom: var(--border);
+}
+
+.product-display .product-display-table .btn:first-child{
+   margin-top: 0;
+}
+
+.product-display .product-display-table .btn:last-child{
+   background: crimson;
+}
+
+.product-display .product-display-table .btn:last-child:hover{
+   background: var(--black);
+}
+
+/* Profile Container Styling */
+.profile-container {
+   max-width: 600px;
+   margin: 2rem auto;
+   padding: 2rem;
+   background-color: var(--white);
+   border-radius: 1rem;
+   box-shadow: var(--box-shadow);
+   text-align: center;
+}
+
+.profile-container h3 {
+   font-size: 2.5rem;
+   margin-bottom: 2rem;
+   color: var(--black);
+}
+
+.profile-container .profile-picture {
+   margin-bottom: 2rem;
+}
+
+.profile-container .profile-picture img {
+   border-radius: 50%;
+   height: 150px;
+   width: 150px;
+   object-fit: cover;
+   border: 0.2rem solid var(--green);
+}
+
+.profile-container label {
+   display: block;
+   font-size: 1.8rem;
+   color: var(--black);
+   text-align: left;
+   margin-bottom: 1rem;
+   margin-top: 1rem;
+}
+
+.profile-container .box {
+   width: 100%;
+   border-radius: .5rem;
+   padding: 1.2rem 1.5rem;
+   font-size: 1.7rem;
+   margin-bottom: 1.5rem;
+   background: var(--bg-color);
+   border: none;
+}
+
+.profile-container .btn {
+   width: 100%;
+   border-radius: .5rem;
+   padding: 1rem 0;
+   font-size: 1.8rem;
+   background-color: var(--green);
+   color: var(--white);
+   cursor: pointer;
+   margin-top: 1rem;
+}
+
+.profile-container .btn:hover {
+   background-color: var(--black);
+}
+
+
+.profile-container form {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+}
+
+.profile-container form input[type="file"] {
+   margin-bottom: 1.5rem;
+}
+
+
+.profile-container .message {
+   background: var(--bg-color);
+   padding: 1.5rem;
+   font-size: 1.8rem;
+   color: var(--black);
+   margin-bottom: 2rem;
+   text-align: center;
+   border: var(--border);
+   border-radius: .5rem;
+}
+
+
+@media (max-width:991px){
+   html{
+      font-size: 55%;
+   }
+}
+
+@media (max-width:768px){
+
+   nav ul {
+      flex-direction: column;
+      text-align: center;
+   }
+
+   .product-display{
+      overflow-y:scroll;
+   }
+
+   .product-display .product-display-table{
+      width: 80rem;
+   }
+
+   .profile-container {
+      max-width: 90%;
+      padding: 2rem 1.5rem;
+   }
+
+   .profile-container .profile-picture img {
+      height: 120px;
+      width: 120px;
+   }
+
+}
+
+
+@media (max-width:450px){
+
+   html{
+      font-size: 50%;
+   }
+
+   nav ul {
+      padding: 0;
+   }
+
+   .profile-container h3 {
+      font-size: 2rem;
+   }
+
+   .profile-container .profile-picture img {
+      height: 100px;
+      width: 100px;
+   }
+
+   .profile-container .box {
+      font-size: 1.5rem;
+   }
+
+   .profile-container .btn {
+      font-size: 1.6rem;
+   }
+}

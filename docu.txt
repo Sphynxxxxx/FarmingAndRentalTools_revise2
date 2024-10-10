@@ -1,0 +1,28 @@
+#For lender table
+
+CREATE TABLE `lender` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `name` varchar(255) NOT NULL,
+    `contact_number` varchar(15) NOT NULL,
+    `address` varchar(255) NOT NULL,
+    `email` varchar(255) NOT NULL,
+    `password` varchar(255) NOT NULL,
+    `image` varchar(255) DEFAULT NULL,
+    `status` enum('pending', 'approved', 'declined') DEFAULT 'pending',
+    PRIMARY KEY (`id`),
+    INDEX (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE lender ADD COLUMN profile_image VARCHAR(255),
+
+--Rename the column image to images--
+
+
+--eh prompt sa terminal--
+npm install
+
+npm install multer
+
+npm install express body-parser 
+
+Note: Create a folder "uploads", "profile_pics", "uploaded_img", "images" for path directory
