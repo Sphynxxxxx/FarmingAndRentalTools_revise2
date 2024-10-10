@@ -26,3 +26,44 @@ npm install multer
 npm install express body-parser 
 
 Note: Create a folder "uploads", "profile_pics", "uploaded_img", "images" for path directory
+
+
+# SQL Command to create Database for LogIn/Regs #
+
+-- Create the database
+CREATE DATABASE cart_db;
+
+
+-- Create the table
+USE cart_db;
+
+CREATE TABLE users2 (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+);
+
+
+
+# SQL Command to create Database for Fetch Product #
+-- Create the database
+CREATE DATABASE cart_db;
+
+-- Use the newly created database
+USE cart_db;
+
+CREATE TABLE products (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    product_name VARCHAR(255) NOT NULL,
+    lender_name VARCHAR(255) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    image VARCHAR(255) NOT NULL,
+    status ENUM('pending', 'approved', 'declined') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+);
+
