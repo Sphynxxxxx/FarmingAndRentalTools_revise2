@@ -109,14 +109,12 @@ img {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-
 .container2 {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap; 
     margin-left: 220px; 
     padding: 20px;
-    margin-left: 220px; 
 }
 
 table {
@@ -129,6 +127,11 @@ th, td {
     padding: 10px;
     text-align: left;
     border: 1px solid #ddd;
+}
+
+td {
+    word-wrap: break-word; /* Enable word wrapping */
+    white-space: normal;   /* Prevent text from staying in a single line */
 }
 
 th {

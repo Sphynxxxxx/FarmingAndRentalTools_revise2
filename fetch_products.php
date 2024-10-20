@@ -1,9 +1,8 @@
 <?php
-
 include 'config.php'; 
 
-// Update the query to fetch only approved products
-$sql = "SELECT * FROM products WHERE status = 'approved'";
+// Fetch only the necessary fields and approved products
+$sql = "SELECT id, product_name, lender_name, location, price, image FROM products WHERE status = 'approved'";
 $result = $conn->query($sql);
 
 $products = [];
@@ -15,6 +14,7 @@ if ($result->num_rows > 0) {
 }
 
 // Encode the approved products to JSON format
+header('Content-Type: application/json');  // Set the response type to JSON
 echo json_encode($products);
 
 $conn->close();

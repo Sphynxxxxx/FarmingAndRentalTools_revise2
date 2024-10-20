@@ -12,19 +12,23 @@ if (isset($_POST['add_product'])) {
     $product_name = mysqli_real_escape_string($conn, $_POST['product_name']);
     $lender_name = mysqli_real_escape_string($conn, $_POST['lender_name']);  
     $location = mysqli_real_escape_string($conn, $_POST['location']);  
+    $description = mysqli_real_escape_string($conn, $_POST['description']);  
     $product_price = mysqli_real_escape_string($conn, $_POST['product_price']);
+    $shipping_fee = mysqli_real_escape_string($conn, $_POST['shippingfee']);
     $product_image = $_FILES['product_image']['name'];
     $product_image_tmp_name = $_FILES['product_image']['tmp_name'];
     $product_image_folder = 'uploaded_img/' . basename($product_image); 
 
-    $status = 'pending';  //status for new products
+    $status = 'pending';  // Status for new products
     
-    if (empty($product_name) || empty($lender_name) || empty($location) || empty($product_price) || empty($product_image)) {
+    if (empty($product_name) || empty($lender_name) || empty($location) || empty($product_price) || empty($shipping_fee) || empty($product_image)) {
         $message[] = 'Please fill out all fields';
     } else {
-        $insert = "INSERT INTO products (product_name, lender_name, location, price, image, status) VALUES ('$product_name', '$lender_name', '$location', '$product_price', '$product_image', '$status')";
-        $upload = mysqli_query($conn, $insert);
-        if ($upload) {
+        
+        $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, location, description, price, shippingfee, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $insert->bind_param("ssssssss", $product_name, $lender_name, $location, $description, $product_price, $shipping_fee, $product_image, $status);
+        
+        if ($insert->execute()) {
             if (move_uploaded_file($product_image_tmp_name, $product_image_folder)) {
                 $message[] = 'New product added successfully';
             } else {
@@ -33,6 +37,7 @@ if (isset($_POST['add_product'])) {
         } else {
             $message[] = 'Could not add the product';
         }
+        $insert->close();
     }
 }
 
@@ -41,13 +46,16 @@ if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']); 
     $select_image = mysqli_query($conn, "SELECT image FROM products WHERE id = $id");
     $row = mysqli_fetch_assoc($select_image);
-    unlink('uploaded_img/' . $row['image']); 
+    
+    
+    if (file_exists('uploaded_img/' . $row['image'])) {
+        unlink('uploaded_img/' . $row['image']);
+    }
 
     mysqli_query($conn, "DELETE FROM products WHERE id = $id");
-    header('location:LenderDashboard.php');
+    header('Location: LenderDashboard.php');
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,6 +75,7 @@ if (isset($_GET['delete'])) {
     </ul>
 </nav>
 
+<!-- Display messages -->
 <?php
 if (isset($message)) {
     foreach ($message as $msg) {
@@ -82,7 +91,9 @@ if (isset($message)) {
             <input type="text" placeholder="Enter Product Name" name="product_name" class="box" required>
             <input type="text" placeholder="Enter Lender Name" name="lender_name" class="box" required>
             <input type="text" placeholder="Location" name="location" class="box" required>
+            <input type="text" placeholder="Description" name="description" class="box" required>
             <input type="number" placeholder="Enter Rent Price" name="product_price" class="box" required>
+            <input type="number" placeholder="Enter Shipping Fee" name="shippingfee" class="box" required>
             <input type="file" accept="image/png, image/jpeg, image/jpg" name="product_image" class="box" required>
             <input type="submit" class="btn" name="add_product" value="Add Product">
         </form>
@@ -100,18 +111,23 @@ if (isset($message)) {
                 <th>Product Name</th>
                 <th>Lender Name</th>
                 <th>Location</th>
+                <th>Description</th>
                 <th>Rent Price</th>
+                <th>Shipping Fee</th>
                 <th>Status</th> 
                 <th>Action</th>
             </tr>
             </thead>
+            <tbody>
             <?php while ($row = mysqli_fetch_assoc($select)) { ?>
                 <tr>
                     <td><img src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" height="100" alt=""></td>
                     <td><?php echo htmlspecialchars($row['product_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['location']); ?></td>
+                    <td class="description"><?php echo htmlspecialchars($row['description']); ?></td>
                     <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
+                    <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td> 
                     <td><?php echo htmlspecialchars($row['status']); ?></td> 
                     <td>
                         <a href="Lender.php?edit=<?php echo $row['id']; ?>" class="btn"><i class="fas fa-edit"></i> Edit</a>
@@ -119,6 +135,7 @@ if (isset($message)) {
                     </td>
                 </tr>
             <?php } ?>
+            </tbody>
         </table>
     </div>
 </div>

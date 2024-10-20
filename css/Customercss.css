@@ -122,15 +122,16 @@
     flex-direction: column;
     align-items: center;
     width: auto;
+    height: auto;
     max-width: 250px; 
   }
   
   .item img {
-    width: 100%;
-    height: auto;
-    max-height: 150px; 
+    width: auto;
+    max-width: 200px;
     object-fit: cover; 
     border-radius: 10px;
+    
   }
   
   .item p {

@@ -20,7 +20,7 @@
             <form id="register-form" class="form hidden" enctype="multipart/form-data">
                 <h2>Create your Account</h2>
                 <input type="text" id="register-name" name="name" placeholder="Name" required>
-                <input type="text" id="register-contact" name="contact" placeholder="Contact Number" required>
+                <input type="number" id="register-contact" name="contact" placeholder="Contact Number" required>
                 <input type="text" id="register-address" name="address" placeholder="Address/City" required>
                 <input type="text" id="register-email" name="email" placeholder="Email" required>
                 <input type="password" id="register-password" name="password" placeholder="Password" required>

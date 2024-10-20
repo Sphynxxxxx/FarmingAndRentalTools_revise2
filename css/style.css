@@ -94,7 +94,6 @@ nav ul li a:hover {
    align-items: center;
    justify-content: center;
    min-height: 100vh;
-   
 }
 
 .admin-product-form-container form{
@@ -127,24 +126,47 @@ nav ul li a:hover {
    margin:2rem 0;
 }
 
-.product-display .product-display-table{
+.product-display .product-display-table {
    width: 100%;
-   text-align: center;
+   text-align: left;
+   border-collapse: collapse;
 }
 
-.product-display .product-display-table thead{
-   background: var(--bg-color);
+.product-display .product-display-table td,
+.product-display .product-display-table th {
+   padding: 1rem;
+   font-size: 1.6rem;
 }
 
-.product-display .product-display-table th{
-   padding:1rem;
-   font-size: 2rem;
+.product-display .product-display-table thead {
+   background-color: var(--green);
+   color: var(--white);
 }
 
-.product-display .product-display-table td{
-   padding:1rem;
-   font-size: 2rem;
-   border-bottom: var(--border);
+.product-display .product-display-table th {
+   font-weight: 600;
+}
+
+.product-display .product-display-table td {
+   padding: 1rem;
+   font-size: 1.6rem;
+   word-wrap: break-word; 
+   white-space: normal;
+}
+
+.product-display .product-display-table img {
+   max-width: 80px; 
+   border-radius: .5rem;
+   object-fit: cover;
+   height: auto;
+}
+
+.product-display .product-display-table td.description {
+   max-width: 300px; 
+   word-wrap: break-word;
+   white-space: normal;
+   overflow-wrap: break-word;
+   hyphens: auto;
 }
 
 .product-display .product-display-table .btn:first-child{
@@ -159,7 +181,6 @@ nav ul li a:hover {
    background: var(--black);
 }
 
-/* Profile Container Styling */
 .profile-container {
    max-width: 600px;
    margin: 2rem auto;
@@ -222,7 +243,6 @@ nav ul li a:hover {
    background-color: var(--black);
 }
 
-
 .profile-container form {
    display: flex;
    flex-direction: column;
@@ -232,7 +252,6 @@ nav ul li a:hover {
 .profile-container form input[type="file"] {
    margin-bottom: 1.5rem;
 }
-
 
 .profile-container .message {
    background: var(--bg-color);
@@ -245,7 +264,6 @@ nav ul li a:hover {
    border-radius: .5rem;
 }
 
-
 @media (max-width:991px){
    html{
       font-size: 55%;
@@ -253,7 +271,6 @@ nav ul li a:hover {
 }
 
 @media (max-width:768px){
-
    nav ul {
       flex-direction: column;
       text-align: center;
@@ -276,12 +293,9 @@ nav ul li a:hover {
       height: 120px;
       width: 120px;
    }
-
 }
 
-
 @media (max-width:450px){
-
    html{
       font-size: 50%;
    }

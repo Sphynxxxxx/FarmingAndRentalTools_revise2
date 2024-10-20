@@ -1,11 +1,17 @@
 <?php
 session_start();
+include 'config.php';
 
 // Check if the user is logged in
 if (!isset($_SESSION['email'])) {
-    header("Location: CustomerDashboard.php");
+    header("Location: CustomerDashboard.php"); // Redirect to login page if not logged in
     exit();
 }
+
+// Fetch products
+$sql = "SELECT id, product_name, lender_name, location, description, price, shippingfee, image FROM products WHERE status = 'approved'";
+$result = $conn->query($sql);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +61,40 @@ if (!isset($_SESSION['email'])) {
       </div>
 
       <!-- Menu Items -->
-      <div class="menu-items" id="menu-items"></div>
+      <div class="menu-items" id="menu-items">
+        <?php
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $productName = htmlspecialchars($row['product_name']);
+                $lenderName = htmlspecialchars($row['lender_name']);
+                $location = htmlspecialchars($row['location']);
+                $description = htmlspecialchars($row['description']);
+                $price = number_format($row['price'], 2);
+                $shippingFee = number_format($row['shippingfee'], 2);
+                $image = htmlspecialchars($row['image']);
+                ?>
+                <div class="item" data-name="<?php echo $productName; ?>" data-price="<?php echo $price; ?>" data-shippingfee="<?php echo $shippingFee; ?>">
+                    <p><strong>Product Name:</strong> <?php echo $productName; ?></p>
+                    <p><strong>Lender Name:</strong> <?php echo $lenderName; ?></p>
+                    <p><strong>Location:</strong> <?php echo $location; ?></p>
+                    <p><strong>Description:</strong> <?php echo $description; ?></p>
+                    <img src="uploaded_img/<?php echo $image; ?>" alt="<?php echo $productName; ?>" onerror="this.src='uploaded_img/default_image.jpg';">
+                    <span class="item-price">₱<?php echo $price; ?></span>
+                    <div class="quantity-control">
+                        <button class="minus-btn">-</button>
+                        <span class="quantity">1</span>
+                        <button class="plus-btn">+</button>
+                    </div>
+                    <button class="rent-btn">Rent</button>
+                </div>
+                <?php
+            }
+        } else {
+            echo "<p>No products available</p>";
+        }
+        $conn->close();
+        ?>
+      </div>
     </div>
 
     <!-- Order Summary -->
@@ -66,15 +105,19 @@ if (!isset($_SESSION['email'])) {
         <p>Subtotal</p>
         <p id="subtotal">₱0.00</p>
       </div>
+      <div class="total">
+        <p>Shipping Fee</p>
+        <p id="shippingfee">₱0.00</p> <!-- Display shipping fee -->
+      </div>
       <div class="payment">
-        <button id="cash-btn">Cash</button>
-        <button id="online-payment-btn">Online Payment</button>
-        <button id="qr-code-btn">QR Code</button>
+        <button id="cash-on-delivery">Cash On Delivery</button>
       </div>
       <button class="place-order">Place Order</button>
     </div>
   </div>
 
+  <!-- Include your JavaScript for interactivity -->
   <script src="scripts.js"></script>
 </body>
 </html>
+

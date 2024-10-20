@@ -1,146 +1,98 @@
-document.addEventListener('DOMContentLoaded', () => {
-    
-    fetch('fetch_products.php')
-        .then(response => response.json())
-        .then(products => renderProducts(products))
-        .catch(error => console.error('Error fetching products:', error));
+// Wait for the DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const menuItems = document.getElementById('menu-items');
+    const orderList = document.getElementById('order-list');
+    const subtotalElement = document.getElementById('subtotal');
+    const shippingFeeElement = document.getElementById('shippingfee'); // For displaying the total shipping fee
+    let subtotal = 0;
+    let totalShippingFee = 0;
+    let orderItems = {};
 
-   
-    function renderProducts(products) {
-        const menuItems = document.getElementById('menu-items');
-
-        products.forEach(product => {
-            const item = document.createElement('div');
-            item.classList.add('item');
-            item.setAttribute('data-name', product.product_name);
-            item.setAttribute('data-price', product.price);
-
-            
-            item.innerHTML = `
-                <img src="uploaded_img/${product.image}" alt="${product.product_name}">
-                <p>${product.description}</p>
-                <span class="item-price">₱${product.price}</span>
-                <div class="quantity-control">
-                    <button class="minus-btn">-</button>
-                    <span class="quantity">1</span>
-                    <button class="plus-btn">+</button>
-                </div>
-                <button class="rent-btn">Rent</button>
-            `;
-
-            menuItems.appendChild(item);
-        });
-
-        addQuantityAndRentListeners();
+    // Function to format prices with commas and decimal places
+    function formatPrice(price) {
+        return parseFloat(price).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    
-    function addQuantityAndRentListeners() {
-        const items = document.querySelectorAll('.item');
-        
-        items.forEach(item => {
-            const minusBtn = item.querySelector('.minus-btn');
-            const plusBtn = item.querySelector('.plus-btn');
-            const quantityElement = item.querySelector('.quantity');
-            const priceElement = item.querySelector('.item-price');
-            const rentBtn = item.querySelector('.rent-btn');
+    // Function to update the order summary
+    function updateOrderSummary() {
+        let summaryHTML = '';
+        subtotal = 0;
+        totalShippingFee = 0;
 
-            let quantity = 1;
-            const basePrice = parseFloat(item.getAttribute('data-price'));
+        // Loop through orderItems to calculate total price and shipping fee
+        for (const [name, details] of Object.entries(orderItems)) {
+            const totalPrice = details.price * details.quantity;
+            const totalItemShipping = details.shippingfee
+            subtotal += totalPrice;
+            totalShippingFee += totalItemShipping;
 
-            const updatePrice = () => {
-                const newPrice = (basePrice * quantity).toFixed(2);
-                priceElement.textContent = `₱${newPrice}`;
-            };
-
-            plusBtn.addEventListener('click', () => {
-                quantity++;
-                quantityElement.textContent = quantity;
-                updatePrice();
-                updateSubtotal();
-            });
-
-            minusBtn.addEventListener('click', () => {
-                if (quantity > 1) {
-                    quantity--;
-                    quantityElement.textContent = quantity;
-                    updatePrice();
-                    updateSubtotal();
-                }
-            });
-
-            rentBtn.addEventListener('click', () => addToOrderList(item, quantity, basePrice));
-        });
-    }
-
-    
-    function addToOrderList(item, quantity, basePrice) {
-        const orderList = document.getElementById('order-list');
-        const itemName = item.getAttribute('data-name');
-        const totalPrice = (basePrice * quantity).toFixed(2);
-
-        
-        let existingOrderItem = Array.from(orderList.children).find(child => 
-            child.querySelector('p').textContent.includes(itemName)
-        );
-
-        if (existingOrderItem) {
-            
-            let existingQuantity = parseInt(existingOrderItem.querySelector('p').textContent.match(/\d+/)[0]);
-            existingQuantity += quantity;
-            existingOrderItem.querySelector('p').textContent = `${itemName} (x${existingQuantity})`;
-            existingOrderItem.querySelector('span').textContent = `₱${(basePrice * existingQuantity).toFixed(2)}`;
-        } else {
-            
-            const orderItem = document.createElement('div');
-            orderItem.classList.add('order-item');
-            orderItem.innerHTML = `<p>${itemName} (x${quantity})</p><span>₱${totalPrice}</span>`;
-            orderList.appendChild(orderItem);
+            summaryHTML += `<div class="order-item">
+                <span>${name} (x${details.quantity})</span>
+                <span>₱${formatPrice(totalPrice)}</span>
+            </div>`;
         }
 
-        updateSubtotal();
+        orderList.innerHTML = summaryHTML;
+        subtotalElement.textContent = `₱${formatPrice(subtotal)}`;
+        shippingFeeElement.textContent = `₱${formatPrice(totalShippingFee)}`;
     }
 
-    
-    function updateSubtotal() {
-        const orderItems = document.querySelectorAll('#order-list .order-item span');
-        let subtotal = 0;
+    // Event delegation for quantity controls and rent button
+    menuItems.addEventListener('click', function(event) {
+        const item = event.target.closest('.item');
+        if (!item) return;
 
-        orderItems.forEach(item => {
-            subtotal += parseFloat(item.textContent.replace('₱', ''));
-        });
+        const quantityElement = item.querySelector('.quantity');
+        let quantity = parseInt(quantityElement.textContent);
 
-        document.getElementById('subtotal').textContent = `₱${subtotal.toFixed(2)}`;
-    }
+        if (event.target.classList.contains('minus-btn') && quantity > 1) {
+            quantity--;
+        } else if (event.target.classList.contains('plus-btn')) {
+            quantity++;
+        } else if (event.target.classList.contains('rent-btn')) {
+            const name = item.dataset.name;
+            const price = parseFloat(item.dataset.price.replace(/,/g, '')); 
+            const shippingfee = parseFloat(item.dataset.shippingfee.replace(/,/g, '')); // Get shipping fee from data attribute
 
-   
-    function handlePaymentButtonClick(paymentMethod) {
-        console.log(`Payment method selected: ${paymentMethod}`);
-        
-    }
+            // Check if the item is already in the orderItems
+            if (orderItems[name]) {
+                orderItems[name].quantity += quantity;
+            } else {
+                orderItems[name] = { price: price, shippingfee: shippingfee, quantity: quantity };
+            }
 
-    
-    document.getElementById('cash-btn').addEventListener('click', () => handlePaymentButtonClick('Cash'));
-    document.getElementById('online-payment-btn').addEventListener('click', () => handlePaymentButtonClick('Online Payment'));
-    document.getElementById('qr-code-btn').addEventListener('click', () => handlePaymentButtonClick('QR Code'));
+            updateOrderSummary();
+            quantity = 1;  // Reset quantity to 1 after adding to order
+        }
 
-    document.querySelector('.place-order').addEventListener('click', () => {
-        console.log('Order placed!');
-        
+        quantityElement.textContent = quantity;
     });
 
-    
-    const searchBox = document.querySelector('header input[type="text"]');
-    searchBox.addEventListener('input', () => {
-        const query = searchBox.value.toLowerCase();
-        const items = document.querySelectorAll('.item');
+    // Category filter functionality
+    const categoryButtons = document.querySelectorAll('.menu-categories button');
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const category = this.dataset.category;
+            document.querySelectorAll('.item').forEach(item => {
+                if (category === 'all' || item.classList.contains(category)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
 
-        items.forEach(item => {
-            const itemName = item.getAttribute('data-name').toLowerCase();
-            if (itemName.includes(query)) {
-                item.style.display = ''; 
+    // Search functionality
+    const searchBox = document.getElementById('search-box');
+    searchBox.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        document.querySelectorAll('.item').forEach(item => {
+            const productName = item.dataset.name.toLowerCase();
+            if (productName.includes(searchTerm)) {
+                item.style.display = 'block';
             } else {
-                item.style.display = 'none'; 
+                item.style.display = 'none';
             }
         });
     });
