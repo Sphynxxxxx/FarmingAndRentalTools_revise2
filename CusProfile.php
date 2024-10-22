@@ -4,14 +4,14 @@ session_start();
 
 
 if (!isset($_SESSION['email'])) {
-    header('Location: Profile.php');
+    header('Location: CusProfile.php');
     exit();
 }
 
 $email = $_SESSION['email']; 
 
 
-$query = "SELECT * FROM lender WHERE email = '$email'";
+$query = "SELECT * FROM customer WHERE email = '$email'";
 $result = mysqli_query($conn, $query);
 $lender = mysqli_fetch_assoc($result); 
 
@@ -22,17 +22,17 @@ if (isset($_POST['update_profile'])) {
     $contact_number = mysqli_real_escape_string($conn, $_POST['contact_number']);
     $profile_image = $_FILES['profile_image']['name'];
     $profile_image_tmp_name = $_FILES['profile_image']['tmp_name'];
-    $profile_image_folder = 'Lenderprofile_pics/' . basename($profile_image);
+    $profile_image_folder = 'Cusprofile_pics/' . basename($profile_image);
 
-    
+   
     if (!empty($profile_image)) {
         move_uploaded_file($profile_image_tmp_name, $profile_image_folder);
-        $update_image = "UPDATE lender SET profile_image = '$profile_image' WHERE email = '$email'";
+        $update_image = "UPDATE customer SET profile_image = '$profile_image' WHERE email = '$email'";
         mysqli_query($conn, $update_image);
     }
 
     
-    $update = "UPDATE lender SET name = '$name', address = '$address', contact_number = '$contact_number' WHERE email = '$email'";
+    $update = "UPDATE customer SET name = '$name', address = '$address', contact_number = '$contact_number' WHERE email = '$email'";
     $update_query = mysqli_query($conn, $update);
 
     if ($update_query) {
@@ -40,9 +40,6 @@ if (isset($_POST['update_profile'])) {
     } else {
         $message = 'Failed to update profile';
     }
-
-    header('Location: Profile.php');
-    exit();
 }
 ?>
 
@@ -51,7 +48,7 @@ if (isset($_POST['update_profile'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lender Profile</title>
+    <title>Customer Profile</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/style.css?v=1.0">
 </head>
@@ -60,21 +57,24 @@ if (isset($_POST['update_profile'])) {
 <?php
 if (isset($message)) {
     echo '<span class="message">' . htmlspecialchars($message) . '</span>';
+
+    header('Location: CusProfile.php');
+    exit();
 }
 ?>
 
 <div class="container">
     <div class="profile-container">
         <!-- Profile Form -->
-        <form action="profile.php" method="post" enctype="multipart/form-data">
+        <form action="CusProfile.php" method="post" enctype="multipart/form-data">
             <h3>Your Profile</h3>
 
             <!-- Display Profile Picture -->
             <div class="profile-picture">
                 <?php if (!empty($lender['profile_image'])): ?>
-                    <img src="Lenderprofile_pics/<?php echo htmlspecialchars($lender['profile_image']); ?>" alt="Profile Picture" height="150">
+                    <img src="Cusprofile_pics/<?php echo htmlspecialchars($lender['profile_image']); ?>" alt="Profile Picture" height="150">
                 <?php else: ?>
-                    <img src="Lenderprofile_pics/default.png" alt="Default Profile Picture" height="150">
+                    <img src="Cusprofile_pics/default.png" alt="Default Profile Picture" height="150">
                 <?php endif; ?>
             </div>
 
@@ -103,7 +103,7 @@ if (isset($message)) {
         </form>
 
        
-        <a href="LenderDashboard.php" class="btn" style="margin-top: 1rem;">Home</a>
+        <a href="CustomerDashboard.php" class="btn" style="margin-top: 1rem;">Home</a>
     </div>
 </div>
 

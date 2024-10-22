@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         
         $imagesName = preg_replace("/[^a-zA-Z0-9\._-]/", "", $imagesName); 
-        $imagesPath = 'Lender_uploads/' . uniqid() . '_' . $imagesName; 
+        $imagesPath = 'Cus_uploads/' . uniqid() . '_' . $imagesName; 
 
         
         if (!move_uploaded_file($imagesTmpPath, $imagesPath)) {
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     
-    $stmt = $conn->prepare("INSERT INTO lender (name, contact_number, address, email, password, images, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
+    $stmt = $conn->prepare("INSERT INTO customer (name, contact_number, address, email, password, images, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
     $stmt->bind_param("ssssss", $name, $contact_number, $address, $email, $password, $images);
 
     

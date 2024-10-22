@@ -7,46 +7,30 @@ CREATE TABLE `lender` (
     `address` varchar(255) NOT NULL,
     `email` varchar(255) NOT NULL,
     `password` varchar(255) NOT NULL,
-    `image` varchar(255) DEFAULT NULL,
+    `images` varchar(255) DEFAULT NULL,
     `status` enum('pending', 'approved', 'declined') DEFAULT 'pending',
+    `profile_image` varchar(255) DEFAULT NULL,
     PRIMARY KEY (`id`),
     INDEX (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+------------------------------------------------------------------------------------------------------------
 
-ALTER TABLE lender ADD COLUMN profile_image VARCHAR(255),
+#For customer table
 
---Rename the column image to images--
-
-
---eh prompt sa terminal--
-npm install
-
-npm install multer
-
-npm install express body-parser 
-
-Note: Create a folder "uploads", "profile_pics", "uploaded_img", "images" for path directory
-
-
-# SQL Command to create Database for LogIn/Regs #
-
--- Create the database
-CREATE DATABASE cart_db;
-
-
--- Create the table
-USE cart_db;
-
-CREATE TABLE users2 (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    contact_number VARCHAR(15) NOT NULL,
-    address VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-);
-
-
+CREATE TABLE `customer` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `name` varchar(255) NOT NULL,
+    `contact_number` varchar(15) NOT NULL,
+    `address` varchar(255) NOT NULL,
+    `email` varchar(255) NOT NULL,
+    `password` varchar(255) NOT NULL,
+    `images` varchar(255) DEFAULT NULL,
+    `status` enum('pending', 'approved', 'declined') DEFAULT 'pending',
+    `profile_image` varchar(255) DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    INDEX (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+------------------------------------------------------------------------------------------------------------
 
 # SQL Command to create Database for Fetch Product #
 -- Create the database
@@ -62,8 +46,43 @@ CREATE TABLE products (
     location VARCHAR(255) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     image VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
     status ENUM('pending', 'approved', 'declined') DEFAULT 'pending',
+    shippingfee VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 );
+------------------------------------------------------------------------------------------------------------
 
+--eh prompt sa terminal--
+npm install
+
+npm install multer
+
+npm install express body-parser 
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Note: Create a folder "Cus_uploads", "Cusprofile_pics", "Lender_uploads",  "Lenderprofile_pics", "uploaded_img", "images" for path directory
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--STARTING POINT TO RUN IN LOCALHOST--
+**ANY FROM THIS**
+AdminCustomerReg.php
+AdminLenderReg.php
+AdminProductsApproval.php
+
+**FOR LENDER**
+LenderMain.php
+
+**FOR CUSTOMER**
+CustomerMain.php
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+NOTE:
+    Kulang pa Check out/Place Order under construction pa
+    Wala pa Account for Admin on going pa
+    Wala pa unod ang Settings(wala pako kabalo ano content for settings). Same as sa Delivery
+    Sa Category optional pana and depends sinyo if prefer niyo butanga sang category
+
+    Ang app.js, api.php and server.php (Nvm lang na, for incase lang na)

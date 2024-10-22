@@ -1,10 +1,12 @@
 <?php
 session_start();
 
+
 @include 'config.php';
 
+
 if (!isset($_SESSION['email'])) {
-    header('Location: LenderDashboard.php');
+    header('Location: Login.php'); 
     exit();
 }
 
@@ -18,9 +20,9 @@ if (isset($_POST['add_product'])) {
     $product_image = $_FILES['product_image']['name'];
     $product_image_tmp_name = $_FILES['product_image']['tmp_name'];
     $product_image_folder = 'uploaded_img/' . basename($product_image); 
-
-    $status = 'pending';  // Status for new products
+    $status = 'pending';  
     
+   
     if (empty($product_name) || empty($lender_name) || empty($location) || empty($product_price) || empty($shipping_fee) || empty($product_image)) {
         $message[] = 'Please fill out all fields';
     } else {
@@ -29,6 +31,7 @@ if (isset($_POST['add_product'])) {
         $insert->bind_param("ssssssss", $product_name, $lender_name, $location, $description, $product_price, $shipping_fee, $product_image, $status);
         
         if ($insert->execute()) {
+            
             if (move_uploaded_file($product_image_tmp_name, $product_image_folder)) {
                 $message[] = 'New product added successfully';
             } else {
@@ -38,24 +41,40 @@ if (isset($_POST['add_product'])) {
             $message[] = 'Could not add the product';
         }
         $insert->close();
+
+        
+        header('Location: LenderDashboard.php');
+        exit();
     }
 }
 
-// Handle product deletion
+
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']); 
-    $select_image = mysqli_query($conn, "SELECT image FROM products WHERE id = $id");
-    $row = mysqli_fetch_assoc($select_image);
-    
-    
-    if (file_exists('uploaded_img/' . $row['image'])) {
-        unlink('uploaded_img/' . $row['image']);
+    $select_image = $conn->prepare("SELECT image FROM products WHERE id = ?");
+    $select_image->bind_param("i", $id);
+    $select_image->execute();
+    $result = $select_image->get_result();
+    $row = $result->fetch_assoc();
+
+    if ($row) {
+        
+        if (file_exists('uploaded_img/' . $row['image'])) {
+            unlink('uploaded_img/' . $row['image']);
+        }
+
+        // Delete the product from the database
+        $delete_stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
+        $delete_stmt->bind_param("i", $id);
+        $delete_stmt->execute();
+        $delete_stmt->close();
     }
 
-    mysqli_query($conn, "DELETE FROM products WHERE id = $id");
     header('Location: LenderDashboard.php');
+    exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -70,12 +89,15 @@ if (isset($_GET['delete'])) {
 
 <nav>
     <ul>
+        <li>
+            <button onclick="window.location.reload();" class="refresh-btn">Refresh</button>
+        </li>
         <li><a href="Profile.php">Profile</a></li>
         <li><a href="Logout.php">Logout</a></li>
     </ul>
 </nav>
 
-<!-- Display messages -->
+
 <?php
 if (isset($message)) {
     foreach ($message as $msg) {
@@ -84,6 +106,7 @@ if (isset($message)) {
 }
 ?>
 
+<!-- Product Form -->
 <div class="container">
     <div class="admin-product-form-container">
         <form action="LenderDashboard.php" method="post" enctype="multipart/form-data">
@@ -99,9 +122,9 @@ if (isset($message)) {
         </form>
     </div>
 
-    <!-- Display products -->
+    <!-- Display Products -->
     <?php
-    $select = mysqli_query($conn, "SELECT * FROM products");
+    $select = $conn->query("SELECT * FROM products");
     ?>
     <div class="product-display">
         <table class="product-display-table">
@@ -119,7 +142,7 @@ if (isset($message)) {
             </tr>
             </thead>
             <tbody>
-            <?php while ($row = mysqli_fetch_assoc($select)) { ?>
+            <?php while ($row = $select->fetch_assoc()) { ?>
                 <tr>
                     <td><img src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" height="100" alt=""></td>
                     <td><?php echo htmlspecialchars($row['product_name']); ?></td>
@@ -131,7 +154,7 @@ if (isset($message)) {
                     <td><?php echo htmlspecialchars($row['status']); ?></td> 
                     <td>
                         <a href="Lender.php?edit=<?php echo $row['id']; ?>" class="btn"><i class="fas fa-edit"></i> Edit</a>
-                        <a href="LenderDashboard.php?delete=<?php echo $row['id']; ?>" class="btn"><i class="fas fa-trash"></i> Delete</a>
+                        <a href="LenderDashboard.php?delete=<?php echo $row['id']; ?>" class="btn" onclick="return confirm('Are you sure you want to delete this product?');"><i class="fas fa-trash"></i> Delete</a>
                     </td>
                 </tr>
             <?php } ?>

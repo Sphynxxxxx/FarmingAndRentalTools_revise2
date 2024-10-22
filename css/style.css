@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600&display=swap');
-
 :root{
    --green:#27ae60;
    --black:#333;
@@ -87,6 +86,20 @@ nav ul li a:hover {
    max-width: 1200px;
    padding:2rem;
    margin:0 auto;
+}
+
+.refresh-btn {
+   background-color: #4CAF50;
+   color: white;
+   border: none;
+   padding: 10px 20px;
+   font-size: 16px;
+   cursor: pointer;
+   border-radius: 5px;
+}
+
+.refresh-btn:hover {
+   background-color: #45a049;
 }
 
 .admin-product-form-container.centered{

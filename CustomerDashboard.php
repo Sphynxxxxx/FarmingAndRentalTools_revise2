@@ -2,9 +2,9 @@
 session_start();
 include 'config.php';
 
-// Check if the user is logged in
+
 if (!isset($_SESSION['email'])) {
-    header("Location: CustomerDashboard.php"); // Redirect to login page if not logged in
+    header("Location: CustomerDashboard.php"); 
     exit();
 }
 
@@ -30,10 +30,10 @@ $result = $conn->query($sql);
       </div>
       <nav>
         <ul>
-          <li><a href="profile.php">Profile</a></li>
+          <li><a href="CusProfile.php">Profile</a></li>
           <li><a href="settings.php">Settings</a></li>
           <li><a href="delivery.php">Delivery</a></li>
-          <li><a href="logout.php">Logout</a></li>
+          <li><a href="CusLogout.php">Logout</a></li>
         </ul>
       </nav>
     </div>
