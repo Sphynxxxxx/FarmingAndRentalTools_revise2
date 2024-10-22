@@ -80,6 +80,7 @@ CustomerMain.php
 
 
 NOTE:
+    Isulod sa Xampp --> htdocs
     Kulang pa Check out/Place Order under construction pa
     Wala pa Account for Admin on going pa
     Wala pa unod ang Settings(wala pako kabalo ano content for settings). Same as sa Delivery
