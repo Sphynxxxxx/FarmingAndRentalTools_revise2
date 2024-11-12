@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $pass = $_POST['password'];
 
     
-    $stmt = $conn->prepare("SELECT password, name, status FROM lender WHERE email = ?");
+    $stmt = $conn->prepare("SELECT password, name, status FROM customer WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();

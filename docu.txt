@@ -87,3 +87,13 @@ NOTE:
     Sa Category optional pana and depends sinyo if prefer niyo butanga sang category
 
     Ang app.js, api.php and server.php (Nvm lang na, for incase lang na)
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+COMPOSER
+install COMPOSER "getcomposer.org."
+
+Locate the path directory 
+verify the installation "composer --version"
+Install PHPMailer via Composer "composer require phpmailer/phpmailer"

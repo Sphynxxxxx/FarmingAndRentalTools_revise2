@@ -45,13 +45,25 @@ p {
     cursor: pointer; 
 }
 
-input {
+input, select {
     width: 100%;
     margin-bottom: 1rem;
     padding: 0.5rem;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem; 
+    background-color: #fff;
+    color: #333;
+}
+
+select {
+    width: calc(100% + 20px); 
+    max-width: 420px;
+}
+
+
+select option:disabled {
+    color: #333; 
 }
 
 button {
@@ -80,4 +92,12 @@ button:hover {
 
 .register-button:hover {
     background: grey; 
+}
+
+label {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    text-align: left;
+    width: 100%;
 }

@@ -4,4 +4,8 @@ Lender_uploads/
 Cusprofile_pics/
 Cus_uploads/
 .venv/
+composer.json
+composer.lock
+package-lock.json
+package.json
 

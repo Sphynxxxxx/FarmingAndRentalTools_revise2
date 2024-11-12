@@ -15,23 +15,21 @@ if (isset($_POST['add_product'])) {
     $lender_name = mysqli_real_escape_string($conn, $_POST['lender_name']);  
     $location = mysqli_real_escape_string($conn, $_POST['location']);  
     $description = mysqli_real_escape_string($conn, $_POST['description']);  
+    $quantity = intval($_POST['quantity']);  // Get quantity from form
     $product_price = mysqli_real_escape_string($conn, $_POST['product_price']);
     $shipping_fee = mysqli_real_escape_string($conn, $_POST['shippingfee']);
     $product_image = $_FILES['product_image']['name'];
     $product_image_tmp_name = $_FILES['product_image']['tmp_name'];
     $product_image_folder = 'uploaded_img/' . basename($product_image); 
-    $status = 'pending';  
-    
-   
+    $status = 'pending';
+
     if (empty($product_name) || empty($lender_name) || empty($location) || empty($product_price) || empty($shipping_fee) || empty($product_image)) {
         $message[] = 'Please fill out all fields';
     } else {
-        
-        $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, location, description, price, shippingfee, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $insert->bind_param("ssssssss", $product_name, $lender_name, $location, $description, $product_price, $shipping_fee, $product_image, $status);
-        
+        $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, location, description, quantity, price, shippingfee, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $insert->bind_param("ssssisdss", $product_name, $lender_name, $location, $description, $quantity, $product_price, $shipping_fee, $product_image, $status);
+
         if ($insert->execute()) {
-            
             if (move_uploaded_file($product_image_tmp_name, $product_image_folder)) {
                 $message[] = 'New product added successfully';
             } else {
@@ -42,11 +40,11 @@ if (isset($_POST['add_product'])) {
         }
         $insert->close();
 
-        
         header('Location: LenderDashboard.php');
         exit();
     }
 }
+
 
 
 if (isset($_GET['delete'])) {
@@ -115,53 +113,15 @@ if (isset($message)) {
             <input type="text" placeholder="Enter Lender Name" name="lender_name" class="box" required>
             <input type="text" placeholder="Location" name="location" class="box" required>
             <input type="text" placeholder="Description" name="description" class="box" required>
+            <input type="number" placeholder="Quantity" name="quantity" class="box" required>
             <input type="number" placeholder="Enter Rent Price" name="product_price" class="box" required>
             <input type="number" placeholder="Enter Shipping Fee" name="shippingfee" class="box" required>
             <input type="file" accept="image/png, image/jpeg, image/jpg" name="product_image" class="box" required>
             <input type="submit" class="btn" name="add_product" value="Add Product">
+            <a href="LenderDashboard2.php" class="btn">View Product List</a>
         </form>
+        
     </div>
-
-    <!-- Display Products -->
-    <?php
-    $select = $conn->query("SELECT * FROM products");
-    ?>
-    <div class="product-display">
-        <table class="product-display-table">
-            <thead>
-            <tr>
-                <th>Product Image</th>
-                <th>Product Name</th>
-                <th>Lender Name</th>
-                <th>Location</th>
-                <th>Description</th>
-                <th>Rent Price</th>
-                <th>Shipping Fee</th>
-                <th>Status</th> 
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php while ($row = $select->fetch_assoc()) { ?>
-                <tr>
-                    <td><img src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" height="100" alt=""></td>
-                    <td><?php echo htmlspecialchars($row['product_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['location']); ?></td>
-                    <td class="description"><?php echo htmlspecialchars($row['description']); ?></td>
-                    <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
-                    <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td> 
-                    <td><?php echo htmlspecialchars($row['status']); ?></td> 
-                    <td>
-                        <a href="Lender.php?edit=<?php echo $row['id']; ?>" class="btn"><i class="fas fa-edit"></i> Edit</a>
-                        <a href="LenderDashboard.php?delete=<?php echo $row['id']; ?>" class="btn" onclick="return confirm('Are you sure you want to delete this product?');"><i class="fas fa-trash"></i> Delete</a>
-                    </td>
-                </tr>
-            <?php } ?>
-            </tbody>
-        </table>
-    </div>
-</div>
-
+    
 </body>
 </html>

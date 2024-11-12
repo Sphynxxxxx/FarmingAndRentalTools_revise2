@@ -109,7 +109,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    justify-content: flex-start; 
+    justify-content: flex-start;
   }
   
   .item {
@@ -123,7 +123,6 @@
     align-items: center;
     width: auto;
     height: auto;
-    max-width: 250px; 
   }
   
   .item img {
@@ -227,6 +226,24 @@
     background-color: white; 
     color: #218838;
   }
+
+  .out-of-stock {
+    background-color: #f2f2f2; 
+    opacity: 0.7; 
+    pointer-events: none; 
+  }
+  .out-of-stock .rent-btn {
+    background-color: #ccc; 
+  }
+  .out-of-stock .quantity-control button {
+    background-color: #ccc; 
+    cursor: not-allowed;
+  }
+  .out-of-stock-label {
+    color: red;
+    font-weight: bolder;
+  }
+
   
   /* for mobile responsiveness */
   @media screen and (max-width: 768px) {

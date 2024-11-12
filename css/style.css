@@ -89,7 +89,7 @@ nav ul li a:hover {
 }
 
 .refresh-btn {
-   background-color: #4CAF50;
+   background-color: transparent;
    color: white;
    border: none;
    padding: 10px 20px;

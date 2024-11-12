@@ -96,6 +96,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                     <thead>
                         <tr>
                             <th>Product Name</th>
+                            <th>Quantity</th>
                             <th>Description</th>
                             <th>Price</th>
                             <th>Shipping Fee</th>
@@ -109,6 +110,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                         <?php while ($row = $pending_result->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['product_name']); ?></td>
+                                <td><?php echo htmlspecialchars($row['quantity']); ?></td> 
                                 <td><?php echo htmlspecialchars($row['description']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
@@ -137,6 +139,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                     <thead>
                         <tr>
                             <th>Product Name</th>
+                            <th>Quantity</th>
                             <th>Description</th>
                             <th>Price</th>
                             <th>Shipping Fee</th>
@@ -150,6 +153,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                         <?php while ($row = $approved_result->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['product_name']); ?></td>
+                                <td><?php echo htmlspecialchars($row['quantity']); ?></td>
                                 <td><?php echo htmlspecialchars($row['description']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
@@ -176,6 +180,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                     <thead>
                         <tr>
                             <th>Product Name</th>
+                            <th>Quantity</th>
                             <th>Description</th>
                             <th>Price</th>
                             <th>Shipping Fee</th>
@@ -189,6 +194,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                         <?php while ($row = $declined_result->fetch_assoc()): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['product_name']); ?></td>
+                                <td><?php echo htmlspecialchars($row['quantity']); ?></td>
                                 <td><?php echo htmlspecialchars($row['description']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
