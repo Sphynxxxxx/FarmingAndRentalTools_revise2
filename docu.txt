@@ -1,43 +1,34 @@
-#For lender table
 
-CREATE TABLE `lender` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `name` varchar(255) NOT NULL,
-    `contact_number` varchar(15) NOT NULL,
-    `address` varchar(255) NOT NULL,
-    `email` varchar(255) NOT NULL,
-    `password` varchar(255) NOT NULL,
-    `images` varchar(255) DEFAULT NULL,
-    `status` enum('pending', 'approved', 'declined') DEFAULT 'pending',
-    `profile_image` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    INDEX (`status`)
+
+CREATE TABLE lender (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,  -- Ensure email is unique
+    password VARCHAR(255) NOT NULL,
+    images VARCHAR(255) DEFAULT NULL,
+    status ENUM('pending', 'approved', 'declined') DEFAULT 'pending',
+    profile_image VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (id),
+    INDEX (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-------------------------------------------------------------------------------------------------------------
 
-#For customer table
 
-CREATE TABLE `customer` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `name` varchar(255) NOT NULL,
-    `contact_number` varchar(15) NOT NULL,
-    `address` varchar(255) NOT NULL,
-    `email` varchar(255) NOT NULL,
-    `password` varchar(255) NOT NULL,
-    `images` varchar(255) DEFAULT NULL,
-    `status` enum('pending', 'approved', 'declined') DEFAULT 'pending',
-    `profile_image` varchar(255) DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    INDEX (`status`)
+CREATE TABLE customer (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(15) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,  -- Ensure email is unique
+    password VARCHAR(255) NOT NULL,
+    images VARCHAR(255) DEFAULT NULL,
+    status ENUM('pending', 'approved', 'declined') DEFAULT 'pending',
+    profile_image VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (id),
+    INDEX (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-------------------------------------------------------------------------------------------------------------
 
-# SQL Command to create Database for Fetch Product #
--- Create the database
-CREATE DATABASE cart_db;
-
--- Use the newly created database
-USE cart_db;
 
 CREATE TABLE products (
     id INT(11) NOT NULL AUTO_INCREMENT,
@@ -48,10 +39,31 @@ CREATE TABLE products (
     image VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
     status ENUM('pending', 'approved', 'declined') DEFAULT 'pending',
-    shippingfee VARCHAR(255) NOT NULL,
+    shippingfee DECIMAL(10, 2) NOT NULL,  
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id INT NOT NULL,  -- Reference customer by `id`
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE  
+);
+
+
+CREATE TABLE IF NOT EXISTS order_details (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    shippingfee DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,  
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE 
+);
+
+
 -------------------------------------------------------------------------------------------------------------
 
 --eh prompt sa terminal--
@@ -96,4 +108,9 @@ install COMPOSER "getcomposer.org."
 
 Locate the path directory 
 verify the installation "composer --version"
-Install PHPMailer via Composer "composer require phpmailer/phpmailer"
+Install PHPMailer via Composer (install in terminal)
+
+composer require phpmailer/phpmailer
+composer require tecnickcom/tcpdf
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------

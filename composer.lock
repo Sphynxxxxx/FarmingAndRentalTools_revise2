@@ -1,9 +1,14 @@
 {
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "121b4bcd60b4580f4402ce3ea6df8b85",
     "packages": [
         {
             "name": "phpmailer/phpmailer",
             "version": "v6.9.2",
-            "version_normalized": "6.9.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
@@ -42,9 +47,7 @@
                 "symfony/polyfill-mbstring": "To support UTF-8 if the Mbstring PHP extension is not enabled (^1.2)",
                 "thenetworg/oauth2-azure": "Needed for Microsoft XOAUTH2 authentication"
             },
-            "time": "2024-10-09T10:07:50+00:00",
             "type": "library",
-            "installation-source": "source",
             "autoload": {
                 "psr-4": {
                     "PHPMailer\\PHPMailer\\": "src/"
@@ -82,12 +85,11 @@
                     "type": "github"
                 }
             ],
-            "install-path": "../phpmailer/phpmailer"
+            "time": "2024-10-09T10:07:50+00:00"
         },
         {
             "name": "tecnickcom/tcpdf",
             "version": "6.7.7",
-            "version_normalized": "6.7.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/TCPDF.git",
@@ -102,9 +104,7 @@
             "require": {
                 "php": ">=5.5.0"
             },
-            "time": "2024-10-26T12:15:02+00:00",
             "type": "library",
-            "installation-source": "source",
             "autoload": {
                 "classmap": [
                     "config",
@@ -157,9 +157,16 @@
                     "type": "custom"
                 }
             ],
-            "install-path": "../tecnickcom/tcpdf"
+            "time": "2024-10-26T12:15:02+00:00"
         }
     ],
-    "dev": true,
-    "dev-package-names": []
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }

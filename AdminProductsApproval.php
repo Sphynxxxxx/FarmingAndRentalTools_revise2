@@ -75,7 +75,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Product Approval</title>
-    <link rel="stylesheet" href="css\Adminstyles.css?v=1.0">
+    <link rel="stylesheet" href="css/Adminstyles.css?v=1.0">
 </head>
 <body>
 
@@ -83,8 +83,9 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
         <a href="AdminProductsApproval.php">Products</a>
         <a href="AdminCustomerReg.php">Customer Admin Approval</a>
         <a href="AdminLenderReg.php">Lender Admin Approval</a>
+        <a href="Admin.php">Back to Dashboard</a>
     </div>
-    
+
     <h2>Product Admin Approval</h2>
     <div class="container2">
 
@@ -98,6 +99,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                             <th>Product Name</th>
                             <th>Quantity</th>
                             <th>Description</th>
+                            <th>Categories</th>
                             <th>Price</th>
                             <th>Shipping Fee</th>
                             <th>Lender Name</th>
@@ -112,11 +114,15 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                                 <td><?php echo htmlspecialchars($row['product_name']); ?></td>
                                 <td><?php echo htmlspecialchars($row['quantity']); ?></td> 
                                 <td><?php echo htmlspecialchars($row['description']); ?></td>
+                                <td><?php echo htmlspecialchars($row['categories']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
                                 <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                                 <td><?php echo htmlspecialchars($row['location']); ?></td>
-                                <td><img src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product Image" style="width:200px;height:200px;"></td>
+                                <td>
+                                    
+                                    <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product Name: <?php echo htmlspecialchars($row['product_name']); ?>" style="width:200px;height:200px;">
+                                </td>
                                 <td>
                                     <a href="?approve=<?php echo $row['id']; ?>">Approve</a> | 
                                     <a href="?decline=<?php echo $row['id']; ?>">Decline</a> |
@@ -141,6 +147,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                             <th>Product Name</th>
                             <th>Quantity</th>
                             <th>Description</th>
+                            <th>Categories</th>
                             <th>Price</th>
                             <th>Shipping Fee</th>
                             <th>Lender Name</th>
@@ -155,11 +162,14 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                                 <td><?php echo htmlspecialchars($row['product_name']); ?></td>
                                 <td><?php echo htmlspecialchars($row['quantity']); ?></td>
                                 <td><?php echo htmlspecialchars($row['description']); ?></td>
+                                <td><?php echo htmlspecialchars($row['categories']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
                                 <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                                 <td><?php echo htmlspecialchars($row['location']); ?></td>
-                                <td><img src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product Image" style="width:100px;height:100px;"></td>
+                                <td>
+                                    <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product: <?php echo htmlspecialchars($row['product_name']); ?>" style="width:100px;height:100px;">
+                                </td>
                                 <td>
                                     <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                                 </td>
@@ -182,6 +192,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                             <th>Product Name</th>
                             <th>Quantity</th>
                             <th>Description</th>
+                            <th>Categories</th>
                             <th>Price</th>
                             <th>Shipping Fee</th>
                             <th>Lender Name</th>
@@ -196,11 +207,14 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                                 <td><?php echo htmlspecialchars($row['product_name']); ?></td>
                                 <td><?php echo htmlspecialchars($row['quantity']); ?></td>
                                 <td><?php echo htmlspecialchars($row['description']); ?></td>
+                                <td><?php echo htmlspecialchars($row['categories']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
                                 <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                                 <td><?php echo htmlspecialchars($row['location']); ?></td>
-                                <td><img src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product Image" style="width:100px;height:100px;"></td>
+                                <td>
+                                    <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product: <?php echo htmlspecialchars($row['product_name']); ?>" style="width:100px;height:100px;">
+                                </td>
                                 <td>
                                     <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                                 </td>
@@ -215,7 +229,40 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
 
     </div>
 
-    <?php $conn->close(); ?>
+    <!-- Modal for displaying the image in full size -->
+    <div id="imageModal" class="modal">
+        <span class="close" id="closeModal">&times;</span>
+        <img class="modal-content" id="expandedImage">
+        <div id="modalCaption"></div>
+    </div>
+
+    <script>
+        // Modal functionality
+        var modal = document.getElementById("imageModal");
+        var modalImg = document.getElementById("expandedImage");
+        var captionText = document.getElementById("modalCaption");
+        var closeBtn = document.getElementById("closeModal");
+
+        var images = document.querySelectorAll('.product-image');
+        images.forEach(function(image) {
+            image.onclick = function() {
+                modal.style.display = "block";
+                modalImg.src = this.src;
+                captionText.innerHTML = this.alt;
+            };
+        });
+
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+    </script>
 
 </body>
 </html>
+

@@ -83,6 +83,7 @@ $declined_result = $conn->query("SELECT * FROM customer WHERE status = 'declined
         <a href="AdminProductsApproval.php">Products</a>
         <a href="AdminCustomerReg.php">Customer Admin Approval</a>
         <a href="AdminLenderReg.php">Lender Admin Approval</a>
+        <a href="Admin.php">Back to Dashboard</a>
     </div>
     
     <h2>Customer Admin Approval</h2>

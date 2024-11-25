@@ -211,7 +211,7 @@
 
             // Prepare form data to send to the server
             const formData = new FormData();
-            formData.append('name', name);
+            formData.append('lender_name', name);
             formData.append('contact', contact);
             formData.append('address', address);
             formData.append('email', email);

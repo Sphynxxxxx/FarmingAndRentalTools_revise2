@@ -83,6 +83,7 @@ $declined_result = $conn->query("SELECT * FROM lender WHERE status = 'declined'"
         <a href="AdminProductsApproval.php">Products</a>
         <a href="AdminCustomerReg.php">Customer Admin Approval</a>
         <a href="AdminLenderReg.php">Lender Admin Approval</a>
+        <a href="Admin.php">Back to Dashboard</a>
     </div>
     
     <h2>Lender Admin Approval</h2>
@@ -95,7 +96,7 @@ $declined_result = $conn->query("SELECT * FROM lender WHERE status = 'declined'"
                 <ul>
                     <?php while ($row = $pending_result->fetch_assoc()): ?>
                         <li>
-                            <?php echo htmlspecialchars($row['name']); ?> - 
+                            <?php echo htmlspecialchars($row['lender_name']); ?> - 
                             <?php echo htmlspecialchars($row['contact_number']); ?> - 
                             <?php echo htmlspecialchars($row['address']); ?> - 
                             <?php echo htmlspecialchars($row['email']); ?>
@@ -119,7 +120,7 @@ $declined_result = $conn->query("SELECT * FROM lender WHERE status = 'declined'"
                 <ul>
                     <?php while ($row = $approved_result->fetch_assoc()): ?>
                         <li>
-                            <?php echo htmlspecialchars($row['name']); ?> - 
+                            <?php echo htmlspecialchars($row['lender_name']); ?> - 
                             <?php echo htmlspecialchars($row['contact_number']); ?> - 
                             <?php echo htmlspecialchars($row['address']); ?> - 
                             <?php echo htmlspecialchars($row['email']); ?>
@@ -140,7 +141,7 @@ $declined_result = $conn->query("SELECT * FROM lender WHERE status = 'declined'"
                 <ul>
                     <?php while ($row = $declined_result->fetch_assoc()): ?>
                         <li>
-                            <?php echo htmlspecialchars($row['name']); ?> - 
+                            <?php echo htmlspecialchars($row['lender_name']); ?> - 
                             <?php echo htmlspecialchars($row['contact_number']); ?> - 
                             <?php echo htmlspecialchars($row['address']); ?> - 
                             <?php echo htmlspecialchars($row['email']); ?>

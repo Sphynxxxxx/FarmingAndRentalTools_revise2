@@ -12,9 +12,21 @@ if ($conn->connect_error) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $name = $conn->real_escape_string($_POST['name']);
+    // Sanitize and validate lender_name
+    if (empty($_POST['lender_name'])) {
+        http_response_code(400); 
+        echo json_encode(['success' => false, 'message' => "Lender name is required."]);
+        exit();
+    }
+    $name = $conn->real_escape_string($_POST['lender_name']);
+    
+    // Sanitize and validate contact number
     $contact_number = $conn->real_escape_string($_POST['contact']);
+    
+    // Sanitize and validate address
     $address = $conn->real_escape_string($_POST['address']);
+    
+    // Validate email
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -35,15 +47,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     $email_check_query->close();
 
+    // Validate and hash password
+    if (empty($_POST['password'])) {
+        http_response_code(400); 
+        echo json_encode(['success' => false, 'message' => "Password is required."]);
+        exit();
+    }
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
+    // Image upload handling
     $images = null;
     $allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif'];
     $maxFileSize = 10 * 1024 * 1024; // 10 MB
 
     if (isset($_FILES['images']) && $_FILES['images']['error'] == UPLOAD_ERR_OK) {
         $imagesTmpPath = $_FILES['images']['tmp_name'];
-        $imagesName = basename($_FILES['images']['name']);
+        $imagesName = basename($_FILES['images']['name']);  // Corrected variable name
         $imagesMimeType = mime_content_type($imagesTmpPath); 
         $imagesSize = $_FILES['images']['size'];
 
@@ -75,7 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     }
 
-    $stmt = $conn->prepare("INSERT INTO lender (name, contact_number, address, email, password, images, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
+    // Insert into database
+    $stmt = $conn->prepare("INSERT INTO lender (lender_name, contact_number, address, email, password, images, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
     $stmt->bind_param("ssssss", $name, $contact_number, $address, $email, $password, $images);
 
     if ($stmt->execute()) {

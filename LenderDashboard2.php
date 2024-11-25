@@ -62,6 +62,7 @@ if (isset($_GET['delete'])) {
             <th>Quantity</th>
             <th>Rent Price</th>
             <th>Shipping Fee</th>
+            <th>Category</th>
             <th>Status</th> 
             <th>Action</th>
         </tr>
@@ -71,15 +72,19 @@ if (isset($_GET['delete'])) {
         $select = $conn->query("SELECT * FROM products");
         while ($row = $select->fetch_assoc()) { ?>
             <tr>
-                <td><img src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" height="100" alt=""></td>
+                <td>
+                    
+                    <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" height="100" alt="Product: <?php echo htmlspecialchars($row['product_name']); ?>">
+                </td>
                 <td><?php echo htmlspecialchars($row['product_name']); ?></td>
                 <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                 <td><?php echo htmlspecialchars($row['location']); ?></td>
                 <td class="description"><?php echo htmlspecialchars($row['description']); ?></td>
                 <td><?php echo htmlspecialchars($row['quantity']); ?></td>
                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
-                <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td> 
-                <td><?php echo htmlspecialchars($row['status']); ?></td> 
+                <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
+                <td><?php echo htmlspecialchars($row['categories']); ?></td>
+                <td><?php echo htmlspecialchars($row['status']); ?></td>
                 <td>
                     <a href="Lender.php?edit=<?php echo $row['id']; ?>" class="btn"><i class="fas fa-edit"></i> Edit</a>
                     <a href="LenderDashboard2.php?delete=<?php echo $row['id']; ?>" class="btn" onclick="return confirm('Are you sure you want to delete this product?');"><i class="fas fa-trash"></i> Delete</a>
@@ -90,5 +95,42 @@ if (isset($_GET['delete'])) {
     </table>
 </div>
 
+
+<div id="imageModal" class="modal">
+    <span class="close" id="closeModal">&times;</span>
+    <img class="modal-content" id="expandedImage">
+    <div id="modalCaption"></div>
+</div>
+
+
+<script>
+
+var modal = document.getElementById("imageModal");
+var modalImg = document.getElementById("expandedImage");
+var captionText = document.getElementById("modalCaption");
+var closeBtn = document.getElementById("closeModal");
+var images = document.querySelectorAll('.product-image');
+images.forEach(function(image) {
+    image.onclick = function() {
+        modal.style.display = "block";
+        modalImg.src = this.src; 
+        captionText.innerHTML = this.alt;
+    };
+});
+
+
+closeBtn.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
+
 </body>
 </html>
+
+

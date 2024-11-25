@@ -88,6 +88,22 @@ nav ul li a:hover {
    margin:0 auto;
 }
 
+select {
+   width: 100%;
+    border-radius: .5rem;
+    padding: 1.2rem 1.5rem;
+    font-size: 1.7rem;
+    margin: 1rem 0;
+    background: var(--white);
+    text-transform: none;
+    color: #5f5e5e;
+}
+
+
+select option:disabled {
+   color: black; 
+}
+
 .refresh-btn {
    background-color: transparent;
    color: white;
@@ -192,6 +208,52 @@ nav ul li a:hover {
 
 .product-display .product-display-table .btn:last-child:hover{
    background: var(--black);
+}
+
+.modal {
+   display: none;
+   position: fixed;
+   z-index: 1;
+   padding-top: 100px;
+   left: 0;
+   top: 0;
+   width: 100%;
+   height: 100%;
+   overflow: auto;
+   background-color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-content {
+   margin: auto;
+   display: block;
+   width: auto;
+   max-width: 700px;
+   height: auto;
+   max-height: 700px;
+}
+
+#modalCaption {
+   margin: 15px;
+   text-align: center;
+   color: white;
+   font-size: 20px;
+}
+
+.close {
+   position: absolute;
+   top: 15px;
+   right: 35px;
+   color: white;
+   font-size: 40px;
+   font-weight: bold;
+   cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+   color: #f1f1f1;
+   text-decoration: none;
+   cursor: pointer;
 }
 
 .profile-container {

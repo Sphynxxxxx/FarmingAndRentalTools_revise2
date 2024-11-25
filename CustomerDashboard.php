@@ -8,7 +8,7 @@ if (!isset($_SESSION['email'])) {
 }
 
 // Fetch products
-$sql = "SELECT id, product_name, lender_name, location, description, price, shippingfee, image, quantity FROM products WHERE status = 'approved'";
+$sql = "SELECT id, categories, product_name, lender_name, location, description, price, shippingfee, created_at, image, quantity FROM products WHERE status = 'approved'";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -18,7 +18,6 @@ $result = $conn->query($sql);
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Farming Tool and Rental System</title>
   <link rel="stylesheet" href="css/Customercss.css?v=1.0">
-
 </head>
 <body>
   <div class="container">
@@ -30,8 +29,7 @@ $result = $conn->query($sql);
       <nav>
         <ul>
           <li><a href="CusProfile.php">Profile</a></li>
-          <li><a href="settings.php">Settings</a></li>
-          <li><a href="delivery.php">Delivery</a></li>
+          <li><a href="delivery.php">Delivery</a></li> 
           <li><a href="CusLogout.php">Logout</a></li>
         </ul>
       </nav>
@@ -49,14 +47,14 @@ $result = $conn->query($sql);
 
       <!-- Categories Buttons -->
       <div class="menu-categories">
-        <button data-category="all">All</button>
-        <button data-category="Hand Tools">Hand Tools</button>
-        <button data-category="Ploughs">Ploughs</button>
-        <button data-category="Seeding Tools">Seeding Tools</button>
-        <button data-category="Harvesting Tools">Harvesting Tools</button>
-        <button data-category="Tilling Tools">Tilling Tools</button>
-        <button data-category="Cutting Tools">Cutting Tools</button>
-        <button data-category="Garden Tools">Garden Tools</button>
+          <button data-category="all">All</button>
+          <button data-category="Hand Tools">Hand Tools</button>
+          <button data-category="Ploughs">Ploughs</button>
+          <button data-category="Seeding Tools">Seeding Tools</button>
+          <button data-category="Harvesting Tools">Harvesting Tools</button>
+          <button data-category="Tilling Tools">Tilling Tools</button>
+          <button data-category="Cutting Tools">Cutting Tools</button>
+          <button data-category="Garden Tools">Garden Tools</button>
       </div>
 
       <!-- Menu Items -->
@@ -64,6 +62,7 @@ $result = $conn->query($sql);
       <?php
       if ($result->num_rows > 0) {
           while ($row = $result->fetch_assoc()) {
+              $categories = htmlspecialchars($row['categories']);
               $productName = htmlspecialchars($row['product_name']);
               $lenderName = htmlspecialchars($row['lender_name']);
               $location = htmlspecialchars($row['location']);
@@ -75,16 +74,17 @@ $result = $conn->query($sql);
               $outOfStockClass = $availableQuantity <= 0 ? 'out-of-stock' : '';
               $outOfStockLabel = $availableQuantity <= 0 ? '<div class="out-of-stock-label">Out of Stock</div>' : '';
               ?>
-              <div class="item <?php echo $outOfStockClass; ?>" data-id="<?php echo $row['id']; ?>" data-name="<?php echo $productName; ?>" data-price="<?php echo $price; ?>" data-shippingfee="<?php echo $shippingFee; ?>" data-quantity="<?php echo $availableQuantity; ?>">
-                  <?php echo $outOfStockLabel; ?>
+              <div class="item <?php echo $outOfStockClass; ?>" data-id="<?php echo $row['id']; ?>" data-categories ="<?php echo $row['categories']; ?>" data-name="<?php echo $productName; ?>" data-price="<?php echo $price; ?>" data-shippingfee="<?php echo $shippingFee; ?>" data-quantity="<?php echo $availableQuantity; ?>">
+                  <?php echo $outOfStockLabel; ?><br>
+                  <?php echo $categories; ?>
                   <p><strong>Product Name:</strong> <?php echo $productName; ?></p>
                   <p><strong>Lender Name:</strong> <?php echo $lenderName; ?></p>
                   <p><strong>Location:</strong> <?php echo $location; ?></p>
                   <p><strong>Description:</strong> <?php echo $description; ?></p>
                   <img src="uploaded_img/<?php echo $image; ?>" alt="<?php echo $productName; ?>" onerror="this.src='uploaded_img/default_image.jpg';">
-                  <span class="item-price">₱<?php echo $price; ?></span>
+                  <h3 class="item-price" style="color: red;">₱<?php echo $price; ?></h3>
 
-                  <p><strong>Available Quantity:</strong> <?php echo $availableQuantity; ?></p>
+                  <p><strong>Available:</strong> <?php echo $availableQuantity; ?></p>
                   <div class="quantity-control">
                       <button class="minus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>-</button>
                       <span class="quantity">0</span>
@@ -114,14 +114,149 @@ $result = $conn->query($sql);
         <p>Shipping Fee</p>
         <p id="shippingfee">₱0.00</p> 
       </div>
-      <div class="payment">
-        <button id="cash-on-delivery">Cash On Delivery</button>
-      </div>
       <button class="place-order">Place Order</button>
     </div>
   </div>
 
-  
-  <script src="scripts.js"></script>
+  <script>
+      document.addEventListener('DOMContentLoaded', () => {
+          const orderList = document.getElementById('order-list');
+          const subtotalElement = document.getElementById('subtotal');
+          const shippingFeeElement = document.getElementById('shippingfee');
+          const placeOrderButton = document.querySelector('.place-order');
+
+          let orderItems = []; // To track the current order list
+
+          // Update the order summary dynamically
+          function updateOrderSummary() {
+              // Clear the current list
+              orderList.innerHTML = '';
+
+              let subtotal = 0;
+              let totalShippingFee = 0;
+
+              // Rebuild the list
+              orderItems.forEach(item => {
+                  const { id, name, price, quantity, shippingFee, image } = item;
+
+                  subtotal += price * quantity;
+                  totalShippingFee += shippingFee * quantity;
+
+                  const orderItem = document.createElement('div');
+                  orderItem.className = 'order-item';
+                  orderItem.innerHTML = `
+                      <div class="order-item-image">
+                          <img src="uploaded_img/${image}" alt="${name}" onerror="this.src='uploaded_img/default_image.jpg';">
+                      </div>
+                      <div class="order-item-details">
+                          <p><strong>${name}</strong></p>
+                          <p>₱${price.toFixed(2)} x ${quantity} = ₱${(price * quantity).toFixed(2)}</p>
+                          <p>Shipping Fee: ₱${(shippingFee * quantity).toFixed(2)}</p>
+                      </div>
+                  `;
+                  orderList.appendChild(orderItem);
+              });
+
+              // Update totals
+              subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
+              shippingFeeElement.textContent = `₱${totalShippingFee.toFixed(2)}`;
+          }
+
+          // Add item to the order summary when Rent button is clicked
+          document.querySelectorAll('.rent-btn').forEach(button => {
+              button.addEventListener('click', (event) => {
+                  const itemElement = event.target.closest('.item');
+                  const itemId = itemElement.dataset.id;
+                  const itemName = itemElement.dataset.name;
+                  const itemPrice = parseFloat(itemElement.dataset.price);
+                  const itemShippingFee = parseFloat(itemElement.dataset.shippingfee);
+                  const itemImage = itemElement.querySelector('img').src.split('/').pop(); // Get the image filename
+
+                  const quantityElement = itemElement.querySelector('.quantity');
+                  const quantity = parseInt(quantityElement.textContent);
+
+                  if (quantity <= 0) {
+                      alert('Please select a quantity greater than 0.');
+                      return;
+                  }
+
+                  // Check if item already exists in the order list
+                  const existingItem = orderItems.find(item => item.id === itemId);
+
+                  if (existingItem) {
+                      // Update quantity if already in the list
+                      existingItem.quantity += quantity;
+                  } else {
+                      // Add new item to the list
+                      orderItems.push({
+                          id: itemId,
+                          name: itemName,
+                          price: itemPrice,
+                          shippingFee: itemShippingFee,
+                          quantity,
+                          image: itemImage,  // Include the image in the order item
+                      });
+                  }
+
+                  // Reset quantity in the product listing
+                  quantityElement.textContent = '0';
+
+                  // Update the order summary display
+                  updateOrderSummary();
+              });
+          });
+
+          // Handle quantity adjustment buttons
+          document.querySelectorAll('.minus-btn').forEach(button => {
+              button.addEventListener('click', (event) => {
+                  const quantityElement = event.target.closest('.quantity-control').querySelector('.quantity');
+                  const currentQuantity = parseInt(quantityElement.textContent);
+
+                  if (currentQuantity > 0) {
+                      quantityElement.textContent = currentQuantity - 1;
+                  }
+              });
+          });
+
+          document.querySelectorAll('.plus-btn').forEach(button => {
+              button.addEventListener('click', (event) => {
+                  const quantityElement = event.target.closest('.quantity-control').querySelector('.quantity');
+                  const currentQuantity = parseInt(quantityElement.textContent);
+
+                  quantityElement.textContent = currentQuantity + 1;
+              });
+          });
+
+          // Handle order placement
+          placeOrderButton.addEventListener('click', () => {
+              if (orderItems.length === 0) {
+                  alert('Please add items to your order.');
+                  return;
+              }
+
+              // Send order data to the server
+              fetch('saveOrder.php', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ orderDetails: orderItems }),
+              })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          window.location.href = 'order_details.php'; 
+                      } else {
+                          alert(data.message);  
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      alert('An error occurred. Please try again.');
+                  });
+          });
+  });
+
+  </script>
 </body>
 </html>
