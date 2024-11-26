@@ -35,24 +35,31 @@ CREATE TABLE products (
     product_name VARCHAR(255) NOT NULL,
     lender_name VARCHAR(255) NOT NULL,
     location VARCHAR(255) NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    image VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
-    status ENUM('pending', 'approved', 'declined') DEFAULT 'pending',
+    quantity INT(11) NOT NULL,  -- Added quantity field
+    categories VARCHAR(255) NOT NULL,  -- Added categories field
+    price DECIMAL(10, 2) NOT NULL,
     shippingfee DECIMAL(10, 2) NOT NULL,  
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    image VARCHAR(255) NOT NULL,
+    status ENUM('pending', 'approved', 'declined') DEFAULT 'pending',
+    rent_days INT;
     PRIMARY KEY (id)
 );
 
+
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_id INT NOT NULL,  -- Reference customer by `id`
+    customer_id INT NOT NULL,  
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE  
+    delivery_method ENUM('pickup', 'cod') NOT NULL DEFAULT 'pickup', 
+    reference_number VARCHAR(255) NOT NULL,  
+    FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE
 );
 
+ALTER TABLE orders ADD COLUMN total_price DECIMAL(10, 2) NOT NULL;
 
-CREATE TABLE IF NOT EXISTS order_details (
+
+CREATE TABLE order_details (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
     product_id INT NOT NULL,
@@ -60,7 +67,7 @@ CREATE TABLE IF NOT EXISTS order_details (
     price DECIMAL(10, 2) NOT NULL,
     shippingfee DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,  
-    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE 
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
 
@@ -74,7 +81,14 @@ npm install multer
 npm install express body-parser 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Note: Create a folder "Cus_uploads", "Cusprofile_pics", "Lender_uploads",  "Lenderprofile_pics", "uploaded_img", "images" for path directory
+Note: Create a folder for path directory
+Cus_uploads/ 
+Cusprofile_pics/
+Lender_uploads/  
+Lenderprofile_pics/ "
+uploaded_img/ 
+images/ 
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
 --STARTING POINT TO RUN IN LOCALHOST--

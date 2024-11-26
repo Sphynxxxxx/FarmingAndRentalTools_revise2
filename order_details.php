@@ -21,8 +21,8 @@ $customer_result = $stmt->get_result();
 $customer = $customer_result->fetch_assoc();
 $customer_id = $customer['id'];
 
-// Fetch the most recent order for this customer
-$order_query = "SELECT o.id AS order_id, o.order_date, 
+// Fetch the most recent order for this customer, including the reference number
+$order_query = "SELECT o.id AS order_id, o.reference_number, o.order_date, o.delivery_method, 
                 c.name, c.email, c.contact_number, c.address
                 FROM orders o
                 JOIN customer c ON o.customer_id = c.id
@@ -34,9 +34,6 @@ $stmt->bind_param("i", $customer_id);
 $stmt->execute();
 $order_result = $stmt->get_result();
 $order = $order_result->fetch_assoc();
-
-// Generate a random reference number for the order
-$reference_no = "REF-" . date("Ymd") . "-" . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
 
 // Fetch order details
 $order_details_query = "SELECT 
@@ -54,39 +51,60 @@ $stmt->bind_param("i", $order['order_id']);
 $stmt->execute();
 $order_details_result = $stmt->get_result();
 
+// Reset the pointer for later use
+mysqli_data_seek($order_details_result, 0);
+
 // Check if the form for generating PDF was submitted
 if (isset($_POST['download_pdf'])) {
     // Create PDF object
     $pdf = new TCPDF();
     $pdf->AddPage();
 
-    // Set font
+    
     $pdf->SetFont('helvetica', '', 12);
 
     // Add the content to the PDF
     $pdf->Cell(0, 10, 'Order Confirmation', 0, 1, 'C');
-    $pdf->Cell(0, 10, 'Reference Number: ' . $reference_no, 0, 1);
+    $pdf->Cell(0, 10, 'Reference Number: ' . $order['reference_number'], 0, 1);
     $pdf->Cell(0, 10, 'Customer Information', 0, 1);
     $pdf->Cell(0, 10, 'Name: ' . htmlspecialchars($order['name']), 0, 1);
     $pdf->Cell(0, 10, 'Email: ' . htmlspecialchars($order['email']), 0, 1);
     $pdf->Cell(0, 10, 'Contact Number: ' . htmlspecialchars($order['contact_number']), 0, 1);
     $pdf->Cell(0, 10, 'Address: ' . htmlspecialchars($order['address']), 0, 1);
     $pdf->Cell(0, 10, 'Order Date: ' . htmlspecialchars($order['order_date']), 0, 1);
+    $pdf->Cell(0, 10, 'Delivery Method: ' . htmlspecialchars($order['delivery_method']), 0, 1);
 
     $pdf->Cell(0, 10, 'Order Details:', 0, 1);
     
     // Add the order details with images to the PDF
     $pdf->SetFont('helvetica', '', 10);
+
+    // Calculate totals for shipping and prices
+    $total_price = 0;
+    $total_shipping = 0;
+
+    // Prepare PDF listing
     while ($detail = $order_details_result->fetch_assoc()) {
+        
+        if (strtolower($order['delivery_method']) == 'pickup') {
+            $shipping_subtotal = 0;
+        } else {
+            $shipping_subtotal = $detail['quantity'] * $detail['shippingfee'];
+        }
+
+        // Calculate subtotal including shipping
+        $subtotal = $detail['quantity'] * $detail['price'] + $shipping_subtotal;
+        $total_price += $detail['quantity'] * $detail['price'];
+        $total_shipping += $shipping_subtotal;
+
         $pdf->Cell(30, 10, $detail['product_name'], 0, 0);
         $pdf->Cell(30, 10, $detail['lender_name'], 0, 0);
         $pdf->Cell(30, 10, $detail['quantity'], 0, 0);
         $pdf->Cell(30, 10, '₱' . number_format($detail['price'], 2), 0, 0);
         $pdf->Cell(30, 10, '₱' . number_format($detail['shippingfee'], 2), 0, 0);
-        $subtotal = $detail['quantity'] * $detail['price'] + $detail['quantity'] * $detail['shippingfee'];
         $pdf->Cell(30, 10, '₱' . number_format($subtotal, 2), 0, 1);
         
-        // Optional: Add an image of the product to the PDF
+        
         $product_image = 'uploaded_img/' . $detail['product_image'];
         if (file_exists($product_image)) {
             $pdf->Image($product_image, $pdf->GetX(), $pdf->GetY(), 15, 15, 'JPG');
@@ -95,9 +113,12 @@ if (isset($_POST['download_pdf'])) {
     }
 
     // Output the PDF as a download
-    $pdf->Output('order_confirmation.pdf', 'D');
-    exit();  // Ensure no further output is sent to the browser
+    $pdf->Output('Order_Receipt.pdf', 'D');
+    exit();  
 }
+
+// Resetting the result pointer for HTML display
+mysqli_data_seek($order_details_result, 0);
 ?>
 
 <!DOCTYPE html>
@@ -115,7 +136,7 @@ if (isset($_POST['download_pdf'])) {
             
             <?php if ($order): ?>
             <div class="order-confirmation">
-                <h3>Order Reference Number: <?php echo $reference_no; ?></h3> <!-- Display the random reference number -->
+                <h3>Order Reference Number: <?php echo htmlspecialchars($order['reference_number']); ?></h3>
 
                 <h3>Customer Information</h3>
                 <p><strong>Name:</strong> <?php echo htmlspecialchars($order['name']); ?></p>
@@ -123,6 +144,7 @@ if (isset($_POST['download_pdf'])) {
                 <p><strong>Contact Number:</strong> <?php echo htmlspecialchars($order['contact_number']); ?></p>
                 <p><strong>Address:</strong> <?php echo htmlspecialchars($order['address']); ?></p>
                 <p><strong>Order Date:</strong> <?php echo htmlspecialchars($order['order_date']); ?></p>
+                <p><strong>Delivery Method:</strong> <?php echo htmlspecialchars($order['delivery_method']); ?></p>
 
                 <h3>Order Details</h3>
                 <table>
@@ -142,9 +164,14 @@ if (isset($_POST['download_pdf'])) {
                         $total_price = 0;
                         $total_shipping = 0;
                         while ($detail = $order_details_result->fetch_assoc()): 
-                            $subtotal = $detail['quantity'] * $detail['price'];
-                            $shipping_subtotal = $detail['quantity'] * $detail['shippingfee'];
-                            $total_price += $subtotal;
+
+                            if (strtolower($order['delivery_method']) == 'pickup') {
+                                $shipping_subtotal = 0;
+                            } else {
+                                $shipping_subtotal = $detail['quantity'] * $detail['shippingfee'];
+                            }
+                            $subtotal = $detail['quantity'] * $detail['price'] + $shipping_subtotal;
+                            $total_price += $detail['quantity'] * $detail['price'];
                             $total_shipping += $shipping_subtotal;
                         ?>
                         <tr>
@@ -153,38 +180,55 @@ if (isset($_POST['download_pdf'])) {
                             <td><?php echo htmlspecialchars($detail['lender_name']); ?></td>
                             <td><?php echo htmlspecialchars($detail['quantity']); ?></td>
                             <td>₱<?php echo number_format($detail['price'], 2); ?></td>
-                            <td>₱<?php echo number_format($detail['shippingfee'], 2); ?></td>
-                            <td>₱<?php echo number_format($subtotal + $shipping_subtotal, 2); ?></td>
+                            <td>
+                                <?php 
+                                // If the delivery method is 'Pick Up', shipping fee is zero
+                                if (strtolower($order['delivery_method']) == 'pickup') {
+                                    echo '₱0.00';
+                                } else {
+                                    echo '₱' . number_format($shipping_subtotal, 2);
+                                }
+                                ?>
+                            </td>
+                            <td>₱<?php echo number_format($subtotal, 2); ?></td>
                         </tr>
                         <?php endwhile; ?>
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="6"><strong>Total Price</strong></td>
-                            <td>₱<?php echo number_format($total_price, 2); ?></td>
-                        </tr>
-                        <tr>
-                            <td colspan="6"><strong>Total Shipping</strong></td>
-                            <td>₱<?php echo number_format($total_shipping, 2); ?></td>
-                        </tr>
-                        <tr>
-                            <td colspan="6"><strong>Grand Total</strong></td>
-                            <td>₱<?php echo number_format($total_price + $total_shipping, 2); ?></td>
-                        </tr>
-                    </tfoot>
                 </table>
+
+                <table>
+                    <tr>
+                        <td><strong>Total Price</strong></td>
+                        <td>₱<?php echo number_format($total_price, 2); ?></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Shipping</strong></td>
+                        <td>₱<?php 
+                            
+                            echo (strtolower($order['delivery_method']) == 'pickup') ? '0.00' : number_format($total_shipping, 2);
+                        ?></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Grand Total</strong></td>
+                        <td>₱<?php 
+                           
+                            echo (strtolower($order['delivery_method']) == 'pickup') 
+                                ? number_format($total_price, 2) 
+                                : number_format($total_price + $total_shipping, 2); 
+                        ?></td>
+                    </tr>
+                </table>
+                
+                <div class="order-actions">
+                    <a href="CustomerDashboard.php" class="btn">Back to Dashboard</a>
+                    <form method="post" action="">
+                        <button type="submit" name="download_pdf">Download PDF</button>
+                    </form>
+                </div>
             </div>
             <?php else: ?>
-            <p>No recent order found.</p>
+                <p>No order found.</p>
             <?php endif; ?>
-
-            <div class="order-actions">
-                <a href="CustomerDashboard.php" class="btn">Back to Dashboard</a>
-                <!-- PDF Download Button -->
-                <form method="post">
-                    <button type="submit" name="download_pdf" class="btn">Download PDF</button>
-                </form>
-            </div>
         </div>
     </div>
 </body>

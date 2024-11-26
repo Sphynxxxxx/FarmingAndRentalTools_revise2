@@ -16,6 +16,7 @@
                 <input type="password" id="login-password" placeholder="Password" required>
                 <button type="button" id="login-button">Login</button>
                 <p id="show-register">————— New User? Register Here —————</p>
+                <a href="VeryMain.php" class="btn">Back</a>
             </form>
 
             <!-- Registration Form -->
@@ -102,7 +103,7 @@
     </div>
 
     <script>
-        let verificationCode = ''; // Store the generated verification code temporarily
+        let verificationCode = ''; 
 
         document.getElementById('show-register').onclick = function() {
             document.getElementById('login-form').classList.toggle('hidden');
@@ -121,7 +122,7 @@
         
         // Generate a random verification code (6 digits)
         function generateVerificationCode() {
-            return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+            return Math.floor(100000 + Math.random() * 900000).toString(); 
         }
 
         // Registration form submission with validation
@@ -194,7 +195,7 @@
             const enteredCode = document.getElementById('verification-code').value;
 
             if (enteredCode === verificationCode) {
-                // Code is correct, complete the registration and store in the database
+                
                 completeRegistration();
             } else {
                 document.getElementById('verification-message').innerText = "Invalid verification code!";
@@ -228,7 +229,7 @@
             const data = await response.json();
             if (data.success) {
                 alert("Registration successful!");
-                window.location.href = 'CustomerMain.php'; // Redirect to main page
+                window.location.href = 'CustomerMain.php'; 
             } else {
                 alert("Registration failed: " + data.message);
             }

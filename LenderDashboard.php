@@ -2,9 +2,8 @@
 session_start();
 @include 'config.php';
 
-
 if (!isset($_SESSION['email'])) {
-    header('Location: Login.php'); 
+    header('Location: Login.php');
     exit();
 }
 
@@ -15,6 +14,7 @@ if (isset($_POST['add_product'])) {
     $location = mysqli_real_escape_string($conn, $_POST['location']);  
     $description = mysqli_real_escape_string($conn, $_POST['description']);  
     $quantity = intval($_POST['quantity']);
+    $rent_days = intval($_POST['rent_days']);
     $categories = mysqli_real_escape_string($conn, $_POST['categories']);
     $product_price = mysqli_real_escape_string($conn, $_POST['product_price']);
     $shipping_fee = mysqli_real_escape_string($conn, $_POST['shippingfee']);
@@ -27,10 +27,10 @@ if (isset($_POST['add_product'])) {
     if (empty($product_name) || empty($lender_name) || empty($location) || empty($description) || empty($quantity) || empty($categories) || empty($product_price) || empty($shipping_fee) || empty($product_image)) {
         $message[] = 'Please fill out all fields';
     } else {
+        // Prepare SQL query
+        $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, location, description, quantity, rent_days, categories, price, shippingfee, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $insert->bind_param("ssssisdssss", $product_name, $lender_name, $location, $description, $quantity, $rent_days, $categories, $product_price, $shipping_fee, $product_image, $status);
         
-        $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, location, description, quantity, categories, price, shippingfee, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $insert->bind_param("ssssisdsss", $product_name, $lender_name, $location, $description, $quantity, $categories, $product_price, $shipping_fee, $product_image, $status);
-
         if ($insert->execute()) {
             // Move the uploaded file to the folder
             if (move_uploaded_file($product_image_tmp_name, $product_image_folder)) {
@@ -42,10 +42,7 @@ if (isset($_POST['add_product'])) {
             $message[] = 'Could not add the product';
         }
 
-        
         $insert->close();
-
-       
         header('Location: LenderDashboard.php');
         exit();
     }
@@ -53,7 +50,7 @@ if (isset($_POST['add_product'])) {
 
 // Delete product functionality
 if (isset($_GET['delete'])) {
-    $id = intval($_GET['delete']); 
+    $id = intval($_GET['delete']);
     $select_image = $conn->prepare("SELECT image FROM products WHERE id = ?");
     $select_image->bind_param("i", $id);
     $select_image->execute();
@@ -73,7 +70,6 @@ if (isset($_GET['delete'])) {
         $delete_stmt->close();
     }
 
-    
     header('Location: LenderDashboard.php');
     exit();
 }
@@ -170,6 +166,7 @@ if (isset($message)) {
                     <option value="Zarrague">Zarrague</option>
             </select>
             <input type="text" placeholder="Description" name="description" class="box" required>
+            <input type="number" placeholder="Rent Days" name="rent_days" class="box" required>
             <input type="number" placeholder="Quantity" name="quantity" class="box" required>
             <select id="Categories" name="categories" required>
                 <option value="" disabled selected>Categories</option>

@@ -60,6 +60,7 @@ if (isset($_GET['delete'])) {
             <th>Location</th>
             <th>Description</th>
             <th>Quantity</th>
+            <th>Rent Days</th>
             <th>Rent Price</th>
             <th>Shipping Fee</th>
             <th>Category</th>
@@ -81,6 +82,7 @@ if (isset($_GET['delete'])) {
                 <td><?php echo htmlspecialchars($row['location']); ?></td>
                 <td class="description"><?php echo htmlspecialchars($row['description']); ?></td>
                 <td><?php echo htmlspecialchars($row['quantity']); ?></td>
+                <td><?php echo htmlspecialchars($row['rent_days']); ?></td>
                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
                 <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
                 <td><?php echo htmlspecialchars($row['categories']); ?></td>

@@ -10,5 +10,5 @@ if (!isset($_SESSION['email'])) {
 
 echo "<h1>Your order has been placed successfully!</h1>";
 
-// Optionally, display order details here by querying the database
+
 ?>

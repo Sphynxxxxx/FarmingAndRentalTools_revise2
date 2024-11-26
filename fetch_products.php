@@ -14,7 +14,7 @@ if ($result->num_rows > 0) {
 }
 
 // Encode the approved products to JSON format
-header('Content-Type: application/json');  // Set the response type to JSON
+header('Content-Type: application/json');  
 echo json_encode($products);
 
 $conn->close();

@@ -29,12 +29,12 @@
             <div class="card">
                 <h3>Customers</h3>
                 <p>Manage customer registrations and profiles.</p>
-                <a href="#" class="btn">View Customers</a>
+                <a href="ApprovedCus.php" class="btn">View Customers</a>
             </div>
             <div class="card">
                 <h3>Lender</h3>
                 <p>Manage Lender registrations and profiles.</p>
-                <a href="#" class="btn">View Customers</a>
+                <a href="ApprovedLend.php" class="btn">View Lender</a>
             </div>
             <div class="card">
                 <h3>Approvals</h3>
@@ -44,7 +44,7 @@
             <div class="card">
                 <h3>Orders</h3>
                 <p>Tracking Orders</p>
-                <a href="#" class="btn">View Orders</a>
+                <a href="Delivery.php" class="btn">View Orders</a>
             </div>
         </div>
 
