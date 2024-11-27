@@ -4,105 +4,101 @@ $username = "root";
 $password = ""; 
 $dbname = "cart_db";
 
+
 $conn = new mysqli($servername, $username, $password, $dbname);
 
+
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die(json_encode(['success' => false, 'message' => "Database connection failed: " . $conn->connect_error]));
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    // Sanitize and validate lender_name
-    if (empty($_POST['lender_name'])) {
-        http_response_code(400); 
-        echo json_encode(['success' => false, 'message' => "Lender name is required."]);
-        exit();
-    }
-    $name = $conn->real_escape_string($_POST['lender_name']);
-    
-    // Sanitize and validate contact number
-    $contact_number = $conn->real_escape_string($_POST['contact']);
-    
-    // Sanitize and validate address
-    $address = $conn->real_escape_string($_POST['address']);
-    
-    // Validate email
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+// Handle POST request
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+   
+    $name = $conn->real_escape_string(trim($_POST['lender_name']));
+    $contact_number = $conn->real_escape_string(trim($_POST['contact']));
+    $address = $conn->real_escape_string(trim($_POST['address']));
+    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        http_response_code(400); 
+        http_response_code(400);
         echo json_encode(['success' => false, 'message' => "Invalid email format."]);
         exit();
     }
 
-    // Check if email already exists
-    $email_check_query = $conn->prepare("SELECT email FROM lender WHERE email = ?");
-    $email_check_query->bind_param("s", $email);
-    $email_check_query->execute();
-    $email_check_query->store_result();
+    // Check for duplicate email
+    $emailCheck = $conn->prepare("SELECT id FROM lender WHERE email = ?");
+    $emailCheck->bind_param("s", $email);
+    $emailCheck->execute();
+    $emailCheck->store_result();
 
-    if ($email_check_query->num_rows > 0) {
-        echo json_encode(['success' => false, 'message' => "This account is already registered."]);
+    if ($emailCheck->num_rows > 0) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => "Email already exists."]);
         exit();
     }
-    $email_check_query->close();
+    $emailCheck->close();
 
-    // Validate and hash password
-    if (empty($_POST['password'])) {
-        http_response_code(400); 
-        echo json_encode(['success' => false, 'message' => "Password is required."]);
-        exit();
-    }
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    // Hash the password securely
+    $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
 
-    // Image upload handling
+    
     $images = null;
-    $allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    $maxFileSize = 10 * 1024 * 1024; // 10 MB
+    $allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif']; 
+    $maxFileSize = 10 * 1024 * 1024; 
 
-    if (isset($_FILES['images']) && $_FILES['images']['error'] == UPLOAD_ERR_OK) {
+    if (isset($_FILES['images']) && $_FILES['images']['error'] === UPLOAD_ERR_OK) {
         $imagesTmpPath = $_FILES['images']['tmp_name'];
-        $imagesName = basename($_FILES['images']['name']);  // Corrected variable name
+        $imagesName = basename($_FILES['images']['name']);
         $imagesMimeType = mime_content_type($imagesTmpPath); 
         $imagesSize = $_FILES['images']['size'];
 
+        // Validate file type
         if (!in_array($imagesMimeType, $allowedFileTypes)) {
-            http_response_code(400); 
-            echo json_encode(['success' => false, 'message' => "Invalid image type. Only JPG, PNG, and GIF allowed."]);
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => "Invalid image type. Only JPG, PNG, and GIF are allowed."]);
             exit();
         }
 
+        // Validate file size
         if ($imagesSize > $maxFileSize) {
-            http_response_code(400); 
+            http_response_code(400);
             echo json_encode(['success' => false, 'message' => "Image size exceeds the 10MB limit."]);
             exit();
         }
 
+        // Sanitize and generate unique file name
         $imagesName = preg_replace("/[^a-zA-Z0-9\._-]/", "", $imagesName); 
-        $imagesPath = 'Lender_uploads/' . uniqid() . '_' . $imagesName;
+        $imagesPath = 'Cus_uploads/' . uniqid('', true) . '_' . $imagesName; 
 
+        // Move the uploaded file to the destination folder
         if (!move_uploaded_file($imagesTmpPath, $imagesPath)) {
-            http_response_code(500); 
+            http_response_code(500);
             echo json_encode(['success' => false, 'message' => "Image upload failed."]);
             exit();
         }
 
         $images = $imagesPath;
     } else {
-        http_response_code(400); 
+        http_response_code(400);
         echo json_encode(['success' => false, 'message' => "No image uploaded or upload error."]);
         exit();
     }
 
-    // Insert into database
+    // Insert data into the database
     $stmt = $conn->prepare("INSERT INTO lender (lender_name, contact_number, address, email, password, images, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
     $stmt->bind_param("ssssss", $name, $contact_number, $address, $email, $password, $images);
 
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'message' => "Registration successful! Awaiting approval."]);
     } else {
-        http_response_code(500); 
-        echo json_encode(['success' => false, 'message' => "Error: " . $stmt->error]);
+        if ($stmt->errno == 1062) { 
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => "Duplicate entry for email."]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => "Database error: " . $stmt->error]);
+        }
     }
 
     $stmt->close();

@@ -2,7 +2,7 @@
 
 CREATE TABLE lender (
     id INT(11) NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
+    lender_name VARCHAR(255) NOT NULL,
     contact_number VARCHAR(15) NOT NULL,
     address VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,  -- Ensure email is unique

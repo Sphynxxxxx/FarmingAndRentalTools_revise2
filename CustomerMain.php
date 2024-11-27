@@ -21,7 +21,7 @@
 
             <!-- Registration Form -->
             <form id="register-form" class="form hidden" enctype="multipart/form-data">
-                <h2>Lender New Account</h2>
+                <h2>Customer New Account</h2>
                 <input type="text" id="register-name" name="name" placeholder="Name" required>
                 <input type="number" id="register-contact" name="contact" placeholder="Contact Number" required>
                 
