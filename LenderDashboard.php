@@ -7,6 +7,11 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
+// Debugging: Enable error reporting
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Add a product
 if (isset($_POST['add_product'])) {
     $product_name = mysqli_real_escape_string($conn, $_POST['product_name']);
@@ -15,22 +20,21 @@ if (isset($_POST['add_product'])) {
     $description = mysqli_real_escape_string($conn, $_POST['description']);  
     $quantity = intval($_POST['quantity']);
     $rent_days = intval($_POST['rent_days']);
-    $categories = mysqli_real_escape_string($conn, $_POST['categories']);
     $product_price = mysqli_real_escape_string($conn, $_POST['product_price']);
     $shipping_fee = mysqli_real_escape_string($conn, $_POST['shippingfee']);
+    $categories = mysqli_real_escape_string($conn, $_POST['categories']);
     $product_image = $_FILES['product_image']['name'];
     $product_image_tmp_name = $_FILES['product_image']['tmp_name'];
     $product_image_folder = 'uploaded_img/' . basename($product_image); 
     $status = 'pending';
 
     // Check if all fields are filled
-    if (empty($product_name) || empty($lender_name) || empty($location) || empty($description) || empty($quantity) || empty($categories) || empty($product_price) || empty($shipping_fee) || empty($product_image)) {
+    if (empty($product_name) || empty($lender_name) || empty($location) || empty($description) || empty($quantity)  || empty($product_price) || empty($shipping_fee) || empty($categories) || empty($product_image)) {
         $message[] = 'Please fill out all fields';
     } else {
         // Prepare SQL query
-        $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, location, description, quantity, rent_days, categories, price, shippingfee, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $insert->bind_param("ssssisdssss", $product_name, $lender_name, $location, $description, $quantity, $rent_days, $categories, $product_price, $shipping_fee, $product_image, $status);
-        
+        $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, location, description, quantity, rent_days, price, shippingfee, categories, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $insert->bind_param("ssssisdssss", $product_name, $lender_name, $location, $description, $quantity, $rent_days, $product_price, $shipping_fee, $categories, $product_image, $status);        
         if ($insert->execute()) {
             // Move the uploaded file to the folder
             if (move_uploaded_file($product_image_tmp_name, $product_image_folder)) {
@@ -39,7 +43,7 @@ if (isset($_POST['add_product'])) {
                 $message[] = 'Failed to upload image';
             }
         } else {
-            $message[] = 'Could not add the product';
+            $message[] = 'Could not add the product: ' . $insert->error;
         }
 
         $insert->close();
@@ -94,6 +98,7 @@ if (isset($_GET['delete'])) {
         </li>
         <li><a href="Profile.php">Profile</a></li>
         <li><a href="Logout.php">Logout</a></li>
+        <li><a href="order_notification.php">Orders</a></li>
     </ul>
 </nav>
 
@@ -168,15 +173,15 @@ if (isset($message)) {
             <input type="text" placeholder="Description" name="description" class="box" required>
             <input type="number" placeholder="Rent Days" name="rent_days" class="box" required>
             <input type="number" placeholder="Quantity" name="quantity" class="box" required>
-            <select id="Categories" name="categories" required>
-                <option value="" disabled selected>Categories</option>
-                <option value="Hand Tools">Hand Tools</option>
-                <option value="Ploughs">Ploughs</option>
-                <option value="Seeding Tools">Seeding Tools</option>
-                <option value="Harvesting Tools">Harvesting Tools</option>
-                <option value="Tilling Tools">Tilling Tools</option>
-                <option value="Cutting Tools">Cutting Tools</option>
-                <option value="Garden Tools">Garden Tools</option>
+            <select id="categories" name="categories" required>
+                    <option value="" disabled selected>Categories</option>
+                    <option value="Hand Tools">Hand Tools</option>
+                    <option value="Ploughs">Ploughs</option>
+                    <option value="Seeding Tools">Seeding Tools</option>
+                    <option value="Harvesting Tools">Harvesting Tools</option>
+                    <option value="Tilling Tools">Tilling Tools</option>
+                    <option value="Cutting Tools">Cutting Tools</option>
+                    <option value="Garden Tools">Garden Tools</option>
             </select>
             <input type="number" placeholder="Enter Rent Price" name="product_price" class="box" required>
             <input type="number" placeholder="Enter Shipping Fee" name="shippingfee" class="box" required>

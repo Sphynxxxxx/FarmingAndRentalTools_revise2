@@ -32,7 +32,8 @@ $result = $conn->query($sql);
       <nav>
         <ul>
           <li><a href="CusProfile.php">Profile</a></li>
-          <li><a href="#">History</a></li> 
+          <li><a href="History.php">History</a></li> 
+          <li><a href="Notification.php">Notification</a></li> 
           <li><a href="CusLogout.php">Logout</a></li>
         </ul>
       </nav>
@@ -118,14 +119,15 @@ $result = $conn->query($sql);
         <div class="date-picker-container">
             <h4>Rental Period</h4>
             <div class="date-picker">
-            <label for="start-date">Start Date:</label>
-            <input type="date" id="start-date" placeholder="Select start date">
+                <label for="start-date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" placeholder="Select start date" required>
             </div>
             <div class="date-picker">
-            <label for="end-date">End Date:</label>
-            <input type="date" id="end-date" placeholder="Select end date">
+                <label for="end-date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" placeholder="Select end date" required>
             </div>
         </div>
+
 
         <!-- Delivery Method Section -->
         <div class="delivery-method">
@@ -162,6 +164,7 @@ $result = $conn->query($sql);
     <script src="scripts.js"></script>
   <script>
       document.addEventListener('DOMContentLoaded', () => {
+    // Add event listener for order summary and item rent
             const orderList = document.getElementById('order-list');
             const subtotalElement = document.getElementById('subtotal');
             const shippingFeeElement = document.getElementById('shippingfee');
@@ -175,16 +178,12 @@ $result = $conn->query($sql);
 
             // Update the order summary dynamically
             function updateOrderSummary() {
-               
                 orderList.innerHTML = '';
-
                 let subtotal = 0;
                 let totalShippingFee = 0;
 
-                
                 orderItems.forEach(item => {
                     const { id, name, price, quantity, shippingFee, image } = item;
-
                     subtotal += price * quantity;
                     
                     // Calculate shipping fee: if Pick Up, set it to 0
@@ -276,6 +275,7 @@ $result = $conn->query($sql);
                 });
             });
 
+        
             // Handle quantity adjustment buttons
             document.querySelectorAll('.minus-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
@@ -290,17 +290,56 @@ $result = $conn->query($sql);
 
             document.querySelectorAll('.plus-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
-                    const quantityElement = event.target.closest('.quantity-control').querySelector('.quantity');
+                    const itemElement = event.target.closest('.item');
+                    const quantityElement = itemElement.querySelector('.quantity');
                     const currentQuantity = parseInt(quantityElement.textContent);
+                    const availableQuantity = parseInt(itemElement.dataset.quantity);
 
-                    quantityElement.textContent = currentQuantity + 1;
+                    if (currentQuantity < availableQuantity) {
+                        quantityElement.textContent = currentQuantity + 1;
+                    }
+
+                    // Disable the plus button if the quantity exceeds the available stock
+                    if (currentQuantity + 1 >= availableQuantity) {
+                        event.target.setAttribute('disabled', 'true');
+                    }
                 });
             });
+
+            // Re-enable the plus button if the quantity is reduced below the available stock
+            document.querySelectorAll('.quantity').forEach(quantityElement => {
+                quantityElement.addEventListener('DOMSubtreeModified', () => {
+                    const itemElement = quantityElement.closest('.item');
+                    const currentQuantity = parseInt(quantityElement.textContent);
+                    const availableQuantity = parseInt(itemElement.dataset.quantity);
+                    const plusButton = itemElement.querySelector('.plus-btn');
+
+                    if (currentQuantity < availableQuantity) {
+                        plusButton.removeAttribute('disabled');
+                    }
+                });
+            });
+
 
             // Handle order placement
             placeOrderButton.addEventListener('click', () => {
                 if (orderItems.length === 0) {
                     alert('Please add items to your order.');
+                    return;
+                }
+
+                // Get start and end dates
+                const startDate = document.getElementById('start_date').value;
+                const endDate = document.getElementById('end_date').value;
+
+                // Validate dates
+                if (!startDate || !endDate) {
+                    alert('Please select start and end dates for your rental period.');
+                    return;
+                }
+
+                if (new Date(startDate) > new Date(endDate)) {
+                    alert('End date cannot be before start date.');
                     return;
                 }
 
@@ -312,23 +351,26 @@ $result = $conn->query($sql);
                     },
                     body: JSON.stringify({ 
                         orderDetails: orderItems,
-                        deliveryMethod: deliveryMethod 
+                        deliveryMethod: deliveryMethod,
+                        start_date: startDate,
+                        end_date: endDate
                     }),
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = 'order_details.php'; 
-                        } else {
-                            alert(data.message);  
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again.');
-                    });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = 'order_details.php'; 
+                    } else {
+                        alert(data.message);  
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
             });
         });
+
 
   </script>
 </body>

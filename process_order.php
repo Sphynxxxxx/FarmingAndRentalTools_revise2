@@ -2,67 +2,137 @@
 session_start();
 include 'config.php';
 
-// Check if the user is logged in
-if (!isset($_SESSION['email'])) {
-    header("Location: CustomerDashboard.php");
+// Early validation checks
+if (!isset($_SESSION['email']) || !isset($_SESSION['customer_id'])) {
+    http_response_code(403);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Unauthorized access. Please log in.'
+    ]);
     exit();
 }
 
-// Check if customer ID exists in session
-if (!isset($_SESSION['customer_id'])) {
-    echo "Customer ID is not set in session.";
+// Get raw POST data
+$rawData = file_get_contents('php://input');
+$data = json_decode($rawData, true);
+
+// Validate input
+if (!isset($data['orderDetails']) || !is_array($data['orderDetails']) || empty($data['orderDetails'])) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Invalid order data.'
+    ]);
     exit();
 }
 
-$customerId = $_SESSION['customer_id'];  // Ensure you are storing the user ID in the session
+$customerId = $_SESSION['customer_id'];
+$deliveryMethod = $data['deliveryMethod'] ?? 'pickup';
+$referenceNumber = 'ORD-' . uniqid();
 
-// Check if order data is received
-if (isset($_POST['order_data'])) {
-    $orderItems = json_decode($_POST['order_data'], true);
-    
-    // Validate the order data
-    if (empty($orderItems)) {
-        echo "No items in the order.";
-        exit();
-    }
-
-    // Start a transaction
+try {
+    // Start transaction
     $conn->begin_transaction();
 
-    try {
-        // Insert the order into the `orders` table
-        $stmt = $conn->prepare("INSERT INTO orders (customer_id, order_date) VALUES (?, NOW())");
-        $stmt->bind_param("i", $customerId);
-        $stmt->execute();
-        $orderId = $stmt->insert_id;  // Get the ID of the inserted order
-        $stmt->close();
+    // Calculate total price
+    $totalPrice = 0;
 
-        // Now insert the order items into the `order_items` table
-        $stmt = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price, shipping_fee) VALUES (?, ?, ?, ?, ?)");
+    // Insert order
+    $orderStmt = $conn->prepare("INSERT INTO orders (customer_id, delivery_method, reference_number, total_price) VALUES (?, ?, ?, ?)");
+    $orderStmt->bind_param("issd", $customerId, $deliveryMethod, $referenceNumber, $totalPrice);
+    $orderStmt->execute();
+    $orderId = $conn->insert_id;
 
-        foreach ($orderItems as $item) {
-            if (isset($item['id'], $item['quantity'], $item['price'], $item['shippingFee'])) {
-                $stmt->bind_param("iiidd", $orderId, $item['id'], $item['quantity'], $item['price'], $item['shippingFee']);
-                $stmt->execute();
-            } else {
-                echo "Missing item details.";
-                exit();
-            }
+    // Prepare statements
+    $detailsStmt = $conn->prepare("
+        INSERT INTO order_details 
+        (order_id, product_id, quantity, price, shippingfee) 
+        VALUES (?, ?, ?, ?, ?)
+    ");
+
+    $productStmt = $conn->prepare("
+        UPDATE products 
+        SET quantity = quantity - ? 
+        WHERE id = ? AND quantity >= ?
+    ");
+
+    // Process each order item
+    foreach ($data['orderDetails'] as $item) {
+        $productId = $item['id'];
+        $quantity = $item['quantity'];
+        $price = $item['price'];
+        $shippingFee = $item['shippingFee'];
+
+        // Validate product availability
+        $checkStmt = $conn->prepare("SELECT quantity FROM products WHERE id = ?");
+        $checkStmt->bind_param("i", $productId);
+        $checkStmt->execute();
+        $result = $checkStmt->get_result();
+        $productData = $result->fetch_assoc();
+
+        if (!$productData || $productData['quantity'] < $quantity) {
+            throw new Exception("Insufficient quantity for product ID: $productId");
         }
 
-        // Commit the transaction
-        $conn->commit();
+        // Calculate item total
+        $itemTotal = $price * $quantity;
+        $totalPrice += $itemTotal;
 
-        // Order placed successfully
-        header("Location: order_confirmation.php"); // Redirect to confirmation page
-        exit();
+        // Insert order details
+        $detailsStmt->bind_param(
+            "iisdd", 
+            $orderId, 
+            $productId, 
+            $quantity, 
+            $price, 
+            $shippingFee
+        );
+        $detailsStmt->execute();
 
-    } catch (Exception $e) {
-        // Rollback in case of error
-        $conn->rollback();
-        echo "Error placing order: " . $e->getMessage();
+        // Update product quantity
+        $productStmt->bind_param("iii", $quantity, $productId, $quantity);
+        $productStmt->execute();
+
+        // Check if update was successful
+        if ($conn->affected_rows === 0) {
+            throw new Exception("Failed to update product quantity for ID: $productId");
+        }
     }
-} else {
-    echo "Invalid order data.";
+
+    // Update order total price
+    $updateTotalStmt = $conn->prepare("UPDATE orders SET total_price = ? WHERE id = ?");
+    $updateTotalStmt->bind_param("di", $totalPrice, $orderId);
+    $updateTotalStmt->execute();
+
+    // Commit transaction
+    $conn->commit();
+
+    // Respond with success
+    echo json_encode([
+        'success' => true,
+        'order_id' => $orderId,
+        'reference_number' => $referenceNumber,
+        'total_price' => $totalPrice
+    ]);
+
+} catch (Exception $e) {
+    // Rollback transaction on error
+    $conn->rollback();
+
+    // Log error (consider using proper error logging in production)
+    error_log("Order processing error: " . $e->getMessage());
+
+    // Respond with error
+    http_response_code(500);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Order processing failed. ' . $e->getMessage()
+    ]);
 }
+
+// Close statements and connection
+$orderStmt->close();
+$detailsStmt->close();
+$productStmt->close();
+$conn->close();
 ?>

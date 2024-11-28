@@ -37,28 +37,29 @@ CREATE TABLE products (
     location VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
     quantity INT(11) NOT NULL,  -- Added quantity field
-    categories VARCHAR(255) NOT NULL,  -- Added categories field
+    categories VARCHAR(255) NOT NULL,  
     price DECIMAL(10, 2) NOT NULL,
     shippingfee DECIMAL(10, 2) NOT NULL,  
     image VARCHAR(255) NOT NULL,
     status ENUM('pending', 'approved', 'declined') DEFAULT 'pending',
-    rent_days INT;
+    rent_days INT NOT NULL,
     PRIMARY KEY (id)
 );
 
 
+-- Create orders table with foreign key references for customer_id and lender_id
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     customer_id INT NOT NULL,  
+    lender_id INT NOT NULL,  
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     delivery_method ENUM('pickup', 'cod') NOT NULL DEFAULT 'pickup', 
-    reference_number VARCHAR(255) NOT NULL,  
+    reference_number VARCHAR(255) NOT NULL,
+    total_price DECIMAL(10, 2) NOT NULL,  
     FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE
 );
 
-ALTER TABLE orders ADD COLUMN total_price DECIMAL(10, 2) NOT NULL;
-
-
+-- Create order_details table with foreign key references to orders and products
 CREATE TABLE order_details (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
@@ -66,9 +67,13 @@ CREATE TABLE order_details (
     quantity INT NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     shippingfee DECIMAL(10, 2) NOT NULL,
+    start_date DATE NULL,
+    end_date DATE NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,  
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
+
+
 
 
 -------------------------------------------------------------------------------------------------------------

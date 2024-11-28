@@ -117,7 +117,6 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                                 <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                                 <td><?php echo htmlspecialchars($row['location']); ?></td>
                                 <td>
-                                    
                                     <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product Name: <?php echo htmlspecialchars($row['product_name']); ?>" style="width:200px;height:200px;">
                                 </td>
                                 <td>

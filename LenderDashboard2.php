@@ -47,6 +47,7 @@ if (isset($_GET['delete'])) {
         <li><a href="LenderDashboard.php">Dashboard</a></li>
         <li><a href="Profile.php">Profile</a></li>
         <li><a href="Logout.php">Logout</a></li>
+        <li><a href="order_notification.php">Orders</a></li>
     </ul>
 </nav>
 

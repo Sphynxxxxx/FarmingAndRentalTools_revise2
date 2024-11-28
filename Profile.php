@@ -87,7 +87,7 @@ if (isset($message)) {
             <input type="text" name="id" value="<?php echo htmlspecialchars($lender['id']); ?>" class="box" disabled>
 
             <label for="name">Name</label>
-            <input type="text" name="name" value="<?php echo htmlspecialchars($lender['name']); ?>" class="box" required>
+            <input type="text" name="name" value="<?php echo htmlspecialchars($lender['lender_name']); ?>" class="box" required>
 
             <label for="email">Email</label>
             <input type="email" name="email" value="<?php echo htmlspecialchars($lender['email']); ?>" class="box" disabled>
