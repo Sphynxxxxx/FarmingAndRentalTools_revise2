@@ -2,11 +2,13 @@
 session_start();
 include 'config.php';
 
+// Check if user is logged in
 if (!isset($_SESSION['email'])) {
     echo json_encode(['success' => false, 'message' => 'User not logged in']);
     exit();
 }
 
+// Parse JSON input
 $data = json_decode(file_get_contents('php://input'), true);
 
 if (empty($data['orderDetails'])) {
@@ -15,9 +17,10 @@ if (empty($data['orderDetails'])) {
 }
 
 $orderDetails = $data['orderDetails'];
-$deliveryMethod = $data['deliveryMethod'] ?? 'pickup'; // Default to pickup if not specified
-
+$deliveryMethod = $data['deliveryMethod'] ?? 'pickup';
 $email = $_SESSION['email'];
+
+// Fetch customer ID based on the email
 $sqlCustomer = "SELECT id FROM customer WHERE email = ?";
 $stmtCustomer = $conn->prepare($sqlCustomer);
 $stmtCustomer->bind_param("s", $email);
@@ -38,32 +41,35 @@ $referenceNumber = "REF-" . date("Ymd") . "-" . strtoupper(substr(md5(uniqid(mt_
 $conn->begin_transaction();
 
 try {
-    // Calculate the total price of the order
+    // Calculate total price for the order
     $totalPrice = 0;
     foreach ($orderDetails as $item) {
-        $totalPrice += $item['quantity'] * $item['price'] + ($deliveryMethod === 'pickup' ? 0 : $item['shippingFee']);
+        $totalPrice += $item['quantity'] * $item['price'] +
+                      (strtolower($deliveryMethod) === 'pickup' ? 0 : $item['shippingFee']);
     }
 
-    // Insert the order into the `orders` table with reference number, delivery method, and total price
+    // Insert the order into the `orders` table
     $stmtOrder = $conn->prepare("INSERT INTO orders (customer_id, reference_number, delivery_method, total_price) VALUES (?, ?, ?, ?)");
     $stmtOrder->bind_param("issd", $customer_id, $referenceNumber, $deliveryMethod, $totalPrice);
     $stmtOrder->execute();
     $order_id = $conn->insert_id;
 
-    // Prepare the statement for inserting order details
-    $stmtOrderDetails = $conn->prepare("INSERT INTO order_details (order_id, product_id, quantity, price, shippingfee) VALUES (?, ?, ?, ?, ?)");
+    // Insert order details into `order_details` table
+    $stmtOrderDetails = $conn->prepare("INSERT INTO order_details (order_id, product_id, quantity, price, shippingfee, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
     foreach ($orderDetails as $item) {
-        // If delivery method is pickup, set shipping fee to 0
         $shippingFee = (strtolower($deliveryMethod) === 'pickup') ? 0 : $item['shippingFee'];
 
-        // Insert order details into `order_details` table
-        $stmtOrderDetails->bind_param("iiidd", $order_id, $item['id'], $item['quantity'], $item['price'], $shippingFee);
+        // Validate and format dates
+        $startDate = isset($item['start_date']) ? date('Y-m-d', strtotime($item['start_date'])) : NULL;
+        $endDate = isset($item['end_date']) ? date('Y-m-d', strtotime($item['end_date'])) : NULL;
+
+        $stmtOrderDetails->bind_param("iiiddss", $order_id, $item['id'], $item['quantity'], $item['price'], $shippingFee, $startDate, $endDate);
         if (!$stmtOrderDetails->execute()) {
             throw new Exception("Failed to insert order details.");
         }
 
-        // Update the stock for the product in `products` table
+        // Update the product stock
         $stmtUpdateStock = $conn->prepare("UPDATE products SET quantity = quantity - ? WHERE id = ?");
         $stmtUpdateStock->bind_param("ii", $item['quantity'], $item['id']);
         if (!$stmtUpdateStock->execute()) {
@@ -73,13 +79,15 @@ try {
 
     $conn->commit();
 
+    // Success response
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'message' => 'Order placed successfully!',
         'referenceNumber' => $referenceNumber,
         'deliveryMethod' => $deliveryMethod,
-        'totalPrice' => $totalPrice // Include the total price in the response
+        'totalPrice' => $totalPrice
     ]);
+
 } catch (Exception $e) {
     $conn->rollback();
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);

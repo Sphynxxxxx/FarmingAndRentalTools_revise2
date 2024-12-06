@@ -63,7 +63,7 @@
 <body>
 
 <div class="container">
-    <a href="CustomerMain.php" class="btn">Renter</a>
+    <a href="CustomerMain.php" class="btn">Borrower</a>
     <a href="LenderMain.php" class="btn">Lender</a>
 </div>
 

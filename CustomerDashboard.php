@@ -8,7 +8,7 @@ if (!isset($_SESSION['email'])) {
 }
 
 // Fetch products
-$sql = "SELECT id, categories, product_name, lender_name, location, description, rent_days, price, shippingfee, created_at, image, quantity FROM products WHERE status = 'approved'";
+$sql = "SELECT id, categories, product_name, lender_name, location, description, rent_days, price, shippingfee, created_at, image, quantity, lender_id FROM products WHERE status = 'approved'";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -18,26 +18,26 @@ $result = $conn->query($sql);
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Farming Tool and Rental System</title>
   <link rel="stylesheet" href="css/Customercss.css?v=1.0">
-  <style>
-    
-  </style>
+ 
 </head>
 <body>
-  <div class="container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="logo">
-        <h2>Farming Tool and Rental System</h2>
-      </div>
-      <nav>
-        <ul>
-          <li><a href="CusProfile.php">Profile</a></li>
-          <li><a href="History.php">History</a></li> 
-          <li><a href="Notification.php">Notification</a></li> 
-          <li><a href="CusLogout.php">Logout</a></li>
-        </ul>
-      </nav>
+  <button class="open-sidebar-btn" id="toggleSidebarBtn">&#9776;</button>
+  <!-- Sidebar -->
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <h2>Farming Tool and Rental System</h2>
+        </div>
+        <nav>
+            <ul>
+            <li><a href="CusProfile.php">Profile</a></li>
+            <li><a href="History.php">History</a></li> 
+            <!--<li><a href="Notification.php">Notification</a></li>  -->
+            <li><a href="CusLogout.php">Logout</a></li>
+            </ul>
+        </nav>
     </div>
+
 
     <!-- Main Content -->
     <div class="main-content">
@@ -137,9 +137,9 @@ $result = $conn->query($sql);
             Pick Up
             </label>
             <label>
-            <input type="radio" name="delivery-method" value="cod"> 
+            <!--<input type="radio" name="delivery-method" value="cod"> 
             Cash on Delivery
-            </label>
+            </label>-->
         </div>
 
         <!-- Total Calculation Section -->
@@ -147,10 +147,10 @@ $result = $conn->query($sql);
             <p>Subtotal</p>
             <p id="subtotal">₱0.00</p>
         </div>
-        <div class="total" id="shipping-fee-container">
+        <!--<div class="total" id="shipping-fee-container">
             <p>Shipping Fee</p>
             <p id="shippingfee">₱0.00</p> 
-        </div>
+        </div> -->
         <div class="total">
             <p><strong>Total</strong></p>
             <p id="total-amount"><strong>₱0.00</strong></p>
@@ -164,7 +164,6 @@ $result = $conn->query($sql);
     <script src="scripts.js"></script>
   <script>
       document.addEventListener('DOMContentLoaded', () => {
-    // Add event listener for order summary and item rent
             const orderList = document.getElementById('order-list');
             const subtotalElement = document.getElementById('subtotal');
             const shippingFeeElement = document.getElementById('shippingfee');
@@ -188,9 +187,9 @@ $result = $conn->query($sql);
                     
                     // Calculate shipping fee: if Pick Up, set it to 0
                     if (deliveryMethod === 'pickup') {
-                        totalShippingFee += 0; // Shipping is free for pick up
+                        totalShippingFee += 0; 
                     } else {
-                        totalShippingFee += shippingFee * quantity; // For COD, calculate the actual shipping fee
+                        totalShippingFee += shippingFee * quantity;
                     }
 
                     const orderItem = document.createElement('div');
@@ -275,15 +274,22 @@ $result = $conn->query($sql);
                 });
             });
 
-        
             // Handle quantity adjustment buttons
             document.querySelectorAll('.minus-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
-                    const quantityElement = event.target.closest('.quantity-control').querySelector('.quantity');
+                    const itemElement = event.target.closest('.item');
+                    const quantityElement = itemElement.querySelector('.quantity');
                     const currentQuantity = parseInt(quantityElement.textContent);
-
+                    const availableQuantity = parseInt(itemElement.dataset.quantity);
+                    const plusButton = itemElement.querySelector('.plus-btn');
+                    
                     if (currentQuantity > 0) {
                         quantityElement.textContent = currentQuantity - 1;
+                    }
+
+                    // Enable the plus button if the quantity is less than the available stock
+                    if (currentQuantity - 1 < availableQuantity) {
+                        plusButton.removeAttribute('disabled');
                     }
                 });
             });
@@ -299,14 +305,14 @@ $result = $conn->query($sql);
                         quantityElement.textContent = currentQuantity + 1;
                     }
 
-                    // Disable the plus button if the quantity exceeds the available stock
+                    // Disable the plus button if the quantity reaches the available stock
                     if (currentQuantity + 1 >= availableQuantity) {
                         event.target.setAttribute('disabled', 'true');
                     }
                 });
             });
 
-            // Re-enable the plus button if the quantity is reduced below the available stock
+            // Ensure the plus button is re-enabled when quantity changes
             document.querySelectorAll('.quantity').forEach(quantityElement => {
                 quantityElement.addEventListener('DOMSubtreeModified', () => {
                     const itemElement = quantityElement.closest('.item');
@@ -314,11 +320,13 @@ $result = $conn->query($sql);
                     const availableQuantity = parseInt(itemElement.dataset.quantity);
                     const plusButton = itemElement.querySelector('.plus-btn');
 
+                    // Re-enable the plus button if the quantity is less than the available stock
                     if (currentQuantity < availableQuantity) {
                         plusButton.removeAttribute('disabled');
                     }
                 });
             });
+
 
 
             // Handle order placement
@@ -328,11 +336,9 @@ $result = $conn->query($sql);
                     return;
                 }
 
-                // Get start and end dates
                 const startDate = document.getElementById('start_date').value;
                 const endDate = document.getElementById('end_date').value;
 
-                // Validate dates
                 if (!startDate || !endDate) {
                     alert('Please select start and end dates for your rental period.');
                     return;
@@ -343,33 +349,39 @@ $result = $conn->query($sql);
                     return;
                 }
 
-                // Send order data to the server
+                const orderData = {
+                    orderDetails: orderItems.map(item => ({
+                        id: item.id,
+                        lender_id: item.lender_id, 
+                        quantity: item.quantity,
+                        price: item.price
+                    })),
+                    deliveryMethod,
+                    start_date: startDate,
+                    end_date: endDate
+                };
+
                 fetch('saveOrder.php', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        orderDetails: orderItems,
-                        deliveryMethod: deliveryMethod,
-                        start_date: startDate,
-                        end_date: endDate
-                    }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData),
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = 'order_details.php'; 
-                    } else {
-                        alert(data.message);  
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = 'order_details.php';
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+                    });
             });
+
         });
+
 
 
   </script>

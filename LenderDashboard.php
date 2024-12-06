@@ -2,6 +2,7 @@
 session_start();
 @include 'config.php';
 
+// Ensure the lender is logged in
 if (!isset($_SESSION['email'])) {
     header('Location: Login.php');
     exit();
@@ -12,12 +13,27 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// Fetch the lender ID based on the logged-in email
+$lender_email = $_SESSION['email'];
+$sql = "SELECT id FROM lender WHERE email = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $lender_email);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $lender = $result->fetch_assoc();
+    $lender_id = $lender['id'];
+} else {
+    die("Lender not found.");
+}
+
 // Add a product
 if (isset($_POST['add_product'])) {
     $product_name = mysqli_real_escape_string($conn, $_POST['product_name']);
-    $lender_name = mysqli_real_escape_string($conn, $_POST['lender_name']);  
-    $location = mysqli_real_escape_string($conn, $_POST['location']);  
-    $description = mysqli_real_escape_string($conn, $_POST['description']);  
+    $lender_name = mysqli_real_escape_string($conn, $_POST['lender_name']);
+    $location = mysqli_real_escape_string($conn, $_POST['location']);
+    $description = mysqli_real_escape_string($conn, $_POST['description']);
     $quantity = intval($_POST['quantity']);
     $rent_days = intval($_POST['rent_days']);
     $product_price = mysqli_real_escape_string($conn, $_POST['product_price']);
@@ -25,30 +41,44 @@ if (isset($_POST['add_product'])) {
     $categories = mysqli_real_escape_string($conn, $_POST['categories']);
     $product_image = $_FILES['product_image']['name'];
     $product_image_tmp_name = $_FILES['product_image']['tmp_name'];
-    $product_image_folder = 'uploaded_img/' . basename($product_image); 
+    $product_image_folder = 'uploaded_img/' . basename($product_image);
     $status = 'pending';
 
     // Check if all fields are filled
-    if (empty($product_name) || empty($lender_name) || empty($location) || empty($description) || empty($quantity)  || empty($product_price) || empty($shipping_fee) || empty($categories) || empty($product_image)) {
-        $message[] = 'Please fill out all fields';
+    if (empty($product_name) || empty($lender_name) || empty($location) || empty($description) || empty($quantity) || empty($product_price) || empty($shipping_fee) || empty($categories) || empty($product_image)) {
+        $message[] = 'Please fill out all fields.';
+    } elseif ($quantity <= 0 || $rent_days <= 0 || $product_price <= 0 || $shipping_fee < 0) {
+        $message[] = 'Invalid input for numerical fields. Please enter valid values.';
     } else {
-        // Prepare SQL query
-        $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, location, description, quantity, rent_days, price, shippingfee, categories, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $insert->bind_param("ssssisdssss", $product_name, $lender_name, $location, $description, $quantity, $rent_days, $product_price, $shipping_fee, $categories, $product_image, $status);        
-        if ($insert->execute()) {
-            // Move the uploaded file to the folder
-            if (move_uploaded_file($product_image_tmp_name, $product_image_folder)) {
-                $message[] = 'New product added successfully';
-            } else {
-                $message[] = 'Failed to upload image';
-            }
+        // Check for valid file types
+        $allowed_types = ['image/jpeg', 'image/jpg', 'image/png'];
+        $file_type = mime_content_type($product_image_tmp_name);
+        if (!in_array($file_type, $allowed_types)) {
+            $message[] = 'Invalid image file type. Please upload a PNG, JPEG, or JPG image.';
+        } elseif (!is_uploaded_file($product_image_tmp_name)) {
+            $message[] = 'File upload failed. Please try again.';
         } else {
-            $message[] = 'Could not add the product: ' . $insert->error;
-        }
+            // Prepare SQL query
+            $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, lender_id, location, description, quantity, rent_days, price, shippingfee, categories, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $insert->bind_param("ssisissdssss", $product_name, $lender_name, $lender_id, $location, $description, $quantity, $rent_days, $product_price, $shipping_fee, $categories, $product_image, $status);
 
-        $insert->close();
-        header('Location: LenderDashboard.php');
-        exit();
+            if ($insert->execute()) {
+                // Move the uploaded file to the folder
+                if (!file_exists('uploaded_img')) {
+                    mkdir('uploaded_img', 0755, true);
+                }
+                if (move_uploaded_file($product_image_tmp_name, $product_image_folder)) {
+                    $message[] = 'New product added successfully.';
+                } else {
+                    $message[] = 'Failed to upload image.';
+                }
+                header('Location: LenderDashboard.php');
+                exit();
+            } else {
+                $message[] = 'Could not add the product: ' . $insert->error;
+            }
+            $insert->close();
+        }
     }
 }
 
@@ -86,30 +116,31 @@ if (isset($_GET['delete'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lender Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="css\lender.css">
 </head>
 <body>
 
-<nav>
+<?php
+if (isset($message)) {
+    foreach ($message as $msg) {
+        echo '<span class="message">' . htmlspecialchars($msg, ENT_QUOTES, 'UTF-8') . '</span>';
+    }
+}
+?>
+
+<div class="sidebar-toggle">
+    <i class="fa-solid fa-bars"></i> <!-- Hamburger Icon -->
+</div>
+
+<div class="sidebar">
     <ul>
-        <li>
-            <button onclick="window.location.reload();" class="refresh-btn">Refresh</button>
-        </li>
+        <li><button onclick="window.location.reload();" class="refresh-btn">Refresh</button></li>
         <li><a href="Profile.php">Profile</a></li>
         <li><a href="Logout.php">Logout</a></li>
         <li><a href="order_notification.php">Orders</a></li>
     </ul>
-</nav>
-
-<?php
-
-if (isset($message)) {
-    foreach ($message as $msg) {
-        echo '<span class="message">' . htmlspecialchars($msg) . '</span>';
-    }
-}
-?>
+</div>
 
 <!-- Product Form -->
 <div class="container">
@@ -192,5 +223,26 @@ if (isset($message)) {
     </div>
 </div>
 
+
+<script>
+    // Get the sidebar and the toggle button
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    const mainContent = document.querySelector('.main-content');
+
+    // Add event listener to toggle sidebar visibility
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+    });
+
+    // Close sidebar if clicked outside of it
+    document.addEventListener('click', (event) => {
+        // Check if the click is outside the sidebar or the toggle button
+        if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+
+</script>
 </body>
 </html>

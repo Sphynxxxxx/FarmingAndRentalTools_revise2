@@ -22,23 +22,8 @@
         
         <div class="quick-stats">
             <div class="card">
-                <h3>Products</h3>
-                <p>Manage and Update product listings.</p>
-                <a href="AdminProductsApproval.php" class="btn">View Products</a>
-            </div>
-            <div class="card">
-                <h3>Customers</h3>
-                <p>Manage customer registrations and profiles.</p>
-                <a href="ApprovedCus.php" class="btn">View Customers</a>
-            </div>
-            <div class="card">
-                <h3>Lender</h3>
-                <p>Manage Lender registrations and profiles.</p>
-                <a href="ApprovedLend.php" class="btn">View Lender</a>
-            </div>
-            <div class="card">
-                <h3>Approvals</h3>
-                <p>Approve or decline pending applications.</p>
+                <h3>Products & Approvals</h3>
+                <p>Manage and Update product listings. Approve or decline pending applications.</p>
                 <a href="AdminCustomerReg.php" class="btn">Manage Approvals</a>
             </div>
             <div class="card">
@@ -53,72 +38,91 @@
     </div>
 
     <style>
- body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    min-height: 100vh;
-    margin: 0;
-}
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4; 
+        }
 
-.main-content {
-    margin: auto;
-    padding: 20px;
-}
-.main-content h1 {
-    font-size: 2.5em;
-    color: #000000;
-}
-.main-content p {
-    font-size: 1.2em;
-    margin-bottom: 30px;
-}
+        .main-content {
+            margin: auto;
+            padding: 30px;
+            max-width: 1000px;
+        }
 
-/* Quick Stats Cards */
-.quick-stats {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-}
-.card {
-    background-color: #ecf0f1;
-    border: 1px solid #bdc3c7;
-    padding: 20px;
-    width: 15%;
-    margin-bottom: 20px;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-.card h3 {
-    font-size: 1.8em;
-    margin-bottom: 10px;
-}
-.card p {
-    font-size: 1.1em;
-    margin-bottom: 20px;
-}
-.card .btn {
-    background-color:  #000000;
-    color: white;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-}
-.card .btn:hover {
-    background-color: #2980b9;
-}
+        .main-content h1 {
+            font-size: 2.5em;
+            color: #2F5233;  
+            margin-bottom: 20px;
+        }
 
-/* Helpful Tips Section */
-.help-tips {
-    margin-top: 50px;
-}
-.help-tips ul {
-    list-style-type: disc;
-    padding-left: 20px;
-}
-.help-tips ul li {
-    font-size: 1.1em;
-    margin-bottom: 10px;
-}
+        .main-content p {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        /* Quick Stats Cards */
+        .quick-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 50px; 
+        }
+
+        .card {
+            background-color: #fff; 
+            border-radius: 8px;
+            padding: 20px;
+            width: 30%;  
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px); 
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            font-size: 1.6em;
+            color: #2F5233; 
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 1em;
+            color: #777;
+            margin-bottom: 20px;
+        }
+
+        .card .btn {
+            background-color: #2F5233; 
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        .card .btn:hover {
+            background-color: #3b6c4a; 
+        }
+
+        /* Responsive Design for Small Screens */
+        @media (max-width: 768px) {
+            .quick-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .card {
+                width: 80%;  
+            }
+        }
+
     </style>
     
 

@@ -11,48 +11,45 @@ if (!isset($_SESSION['email'])) {
 // Get the logged-in user's email
 $userEmail = $_SESSION['email'];
 
-// Query to get the lender ID based on email
-$sqlLender = "SELECT id FROM lender WHERE email = ?";  // Query the lender table
-$stmt = $conn->prepare($sqlLender);
+// Query to get the customer ID based on email
+$sqlCustomer = "SELECT id FROM lender WHERE email = ?";
+$stmt = $conn->prepare($sqlCustomer);
 $stmt->bind_param("s", $userEmail);
 $stmt->execute();
-$resultLender = $stmt->get_result();
+$resultCustomer = $stmt->get_result();
 
-if ($resultLender->num_rows === 0) {
-    echo "No lender found with this email.";
+if ($resultCustomer->num_rows === 0) {
+    echo "No user found with this email.";
     exit;
 }
 
-$lender = $resultLender->fetch_assoc();
-$lenderId = $lender['id'];
 
-// Query to get orders for products that belong to this lender
+$customer = $resultCustomer->fetch_assoc();
+$customerId = $customer['id'];
+
+// Query to get orders for this customer
 $sqlOrders = "
-    SELECT o.id AS order_id, o.order_date, o.delivery_method, o.reference_number, o.total_price, c.name AS customer_name
+    SELECT o.id AS order_id, o.order_date, o.delivery_method, o.reference_number, o.total_price
     FROM orders o
-    JOIN products p ON o.lender_id = p.lender_id  -- Filter orders based on lender_id in products table
-    JOIN customer c ON o.customer_id = c.id
-    WHERE o.lender_id = ?  -- Filter orders by lender_id
+    WHERE o.customer_id = ?
     ORDER BY o.order_date DESC
 ";
-
 $stmt = $conn->prepare($sqlOrders);
-$stmt->bind_param("i", $lenderId);
+$stmt->bind_param("i", $customerId);
 $stmt->execute();
 $resultOrders = $stmt->get_result();
 
 // Check if orders exist
 if ($resultOrders->num_rows === 0) {
-    echo "No orders found for your products.";
+    echo "No orders found.";
     exit;
 }
 
-echo "<a href='LenderDashboard.php'><button>Back to Dashboard</button></a>";
+echo "<a href='CustomerDashboard.php'><button>Back to Dashboard</button></a>";
 // Display orders
-echo "<h1>Your Product Orders</h1>";
+echo "<h1>Your Order History</h1>";
 while ($order = $resultOrders->fetch_assoc()) {
     echo "<h2>Order #" . htmlspecialchars($order['reference_number']) . "</h2>";
-    echo "<p>Customer: " . htmlspecialchars($order['customer_name']) . "</p>";
     echo "<p>Order Date: " . htmlspecialchars($order['order_date']) . "</p>";
     echo "<p>Delivery Method: " . htmlspecialchars($order['delivery_method']) . "</p>";
     echo "<p>Total Price: ₱" . htmlspecialchars($order['total_price']) . "</p>";
@@ -92,6 +89,7 @@ while ($order = $resultOrders->fetch_assoc()) {
             <td>₱" . htmlspecialchars($detail['price']) . "</td>
             <td>₱" . htmlspecialchars($detail['shippingfee']) . "</td>
         </tr>";
+
     }
     echo "</table>";
     echo "<hr>";

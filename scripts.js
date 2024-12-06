@@ -30,3 +30,21 @@
     });
 
 
+    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+    const sidebar = document.getElementById('sidebar');
+
+    toggleSidebarBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+
+
+   // Get the close button and order summary container
+    const closeBtn = document.getElementById('closeBtn');
+    const orderSummary = document.getElementById('order-summary');
+
+    // Add an event listener to the close button
+    closeBtn.addEventListener('click', function() {
+        // Hide the order summary when the close button is clicked
+        orderSummary.style.display = 'none';
+    });
+

@@ -38,18 +38,188 @@ if (isset($_GET['delete'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product List</title>
-    <link rel="stylesheet" href="css/style.css?v=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="css/lender.css">
 </head>
 <body>
+<style>
+    /* General Styles */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
 
-<nav>
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* Header and Navigation */
+    nav {
+        background-color: #2F5233; /* Main color */
+        padding: 15px;
+    }
+
+    nav ul {
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        margin: 0;
+        padding: 0;
+    }
+
+    nav ul li a {
+        color: white;
+        font-size: 16px;
+        padding: 10px 15px;
+        display: block;
+        transition: background-color 0.3s;
+    }
+
+    nav ul li a:hover {
+        background-color: #3a6f4c; /* Darker shade for hover */
+    }
+
+    /* Product Table */
+    .product-display {
+        margin: 30px auto;
+        max: 1200px;
+        padding: 0 15px;
+    }
+
+    .product-display-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #ddd;
+    }
+
+    .product-display-table th, .product-display-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .product-display-table th {
+        background-color: #2F5233;
+        color: white;
+        font-size: 14px;
+    }
+
+    .product-display-table td {
+        font-size: 20px;
+    }
+
+    .product-display-table td img {
+        width: 60px;
+        height: auto;
+    }
+
+    .product-display-table td .btn {
+        padding: 8px 15px;
+        background-color: #2F5233;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 14px;
+    }
+
+    .product-display-table td .btn:hover {
+        background-color: #3a6f4c; /* Darker shade on hover */
+    }
+
+    /* Modal for Image */
+    #imageModal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    #imageModal .modal-content {
+        max-width: 80%;
+        margin: auto;
+        display: block;
+    }
+
+    #imageModal #modalCaption {
+        color: white;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    #imageModal .close {
+        color: white;
+        font-size: 30px;
+        position: absolute;
+        top: 10px;
+        right: 25px;
+        cursor: pointer;
+    }
+
+    #imageModal .close:hover {
+        color: #ff6347; /* Change close icon color */
+    }
+
+    /* Minimalist Buttons */
+    .btn {
+        font-size: 14px;
+        padding: 8px 15px;
+        border-radius: 5px;
+        background-color: #2F5233;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+        background-color: #3a6f4c;
+    }
+
+    /* Mobile Responsiveness */
+    @media screen and (max-width: 768px) {
+        .product-display-table {
+            font-size: 12px;
+        }
+
+        .product-display-table th, .product-display-table td {
+            padding: 10px;
+        }
+
+        .btn {
+            font-size: 12px;
+            padding: 6px 10px;
+        }
+
+        #imageModal .modal-content {
+            max-width: 90%;
+        }
+    }
+
+</style>
+
+<div class="sidebar-toggle">
+    <i class="fa-solid fa-bars"></i>
+</div>
+
+<div class="sidebar">
     <ul>
-        <li><a href="LenderDashboard.php">Dashboard</a></li>
+        <li><button onclick="window.location.reload();" class="refresh-btn">Refresh</button></li>
         <li><a href="Profile.php">Profile</a></li>
-        <li><a href="Logout.php">Logout</a></li>
+        <li><a href="LenderDashboard.php">Dashboard</a></li>
         <li><a href="order_notification.php">Orders</a></li>
+        <li><a href="Logout.php">Logout</a></li>
     </ul>
-</nav>
+</div>
 
 <div class="product-display">
     <table class="product-display-table">
@@ -75,7 +245,6 @@ if (isset($_GET['delete'])) {
         while ($row = $select->fetch_assoc()) { ?>
             <tr>
                 <td>
-                    
                     <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" height="100" alt="Product: <?php echo htmlspecialchars($row['product_name']); ?>">
                 </td>
                 <td><?php echo htmlspecialchars($row['product_name']); ?></td>
@@ -98,16 +267,13 @@ if (isset($_GET['delete'])) {
     </table>
 </div>
 
-
 <div id="imageModal" class="modal">
     <span class="close" id="closeModal">&times;</span>
     <img class="modal-content" id="expandedImage">
     <div id="modalCaption"></div>
 </div>
 
-
 <script>
-
 var modal = document.getElementById("imageModal");
 var modalImg = document.getElementById("expandedImage");
 var captionText = document.getElementById("modalCaption");
@@ -121,7 +287,6 @@ images.forEach(function(image) {
     };
 });
 
-
 closeBtn.onclick = function() {
     modal.style.display = "none";
 }
@@ -131,9 +296,16 @@ window.onclick = function(event) {
         modal.style.display = "none";
     }
 }
+
+// Select the sidebar and the hamburger icon
+const sidebar = document.querySelector('.sidebar');
+const sidebarToggle = document.querySelector('.sidebar-toggle');
+
+// Toggle the sidebar active class when the hamburger icon is clicked
+sidebarToggle.addEventListener('click', function() {
+    sidebar.classList.toggle('active');
+});
 </script>
 
 </body>
 </html>
-
-

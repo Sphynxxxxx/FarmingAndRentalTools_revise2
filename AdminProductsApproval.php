@@ -75,11 +75,207 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Product Approval</title>
-    <link rel="stylesheet" href="css/Adminstyles.css?v=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            background-color: #2F5233;
+            color: white;
+            height: 100vh;
+            width: 100px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 20px;
+            box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            display: block;
+            padding: 15px 0;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: #3b6c4a;
+        }
+
+        .sidebar a:active {
+            background-color: #2A3D29;
+        }
+
+        .sidebar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .sidebar .logo a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar .logo a:hover {
+            color: #fff;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container2 {
+            margin-left: 240px;
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        section h2 {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+        }
+
+        table td img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        table a {
+            color: #2F5233;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px 10px;
+            border: 2px solid #2F5233;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        table a:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        table a:active {
+            background-color: #0056b3;
+        }
+
+        .product-image {
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        #imageModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        #expandedImage {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
+        }
+
+        #modalCaption {
+            text-align: center;
+            color: white;
+            padding: 10px;
+        }
+
+        #closeModal {
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 35px;
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+        }
+
+        #closeModal:hover,
+        #closeModal:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .container2 {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .section h2 {
+                font-size: 16px;
+            }
+
+            table th, table td {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .product-image {
+                width: 80px;
+                height: 80px;
+            }
+
+            table td img {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+    </style>
 </head>
 <body>
 
     <div class="sidebar">
+        <a href="AdminCustomerReg.php">Borrower Admin Approval</a>
+        <a href="AdminLenderReg.php">Lender Admin Approval</a>
+        <a href="AdminProductsApproval.php">Products Admin Approval</a>
         <a href="Admin.php">Back to Dashboard</a>
     </div>
 

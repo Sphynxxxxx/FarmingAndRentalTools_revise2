@@ -36,7 +36,7 @@ CREATE TABLE products (
     lender_name VARCHAR(255) NOT NULL,
     location VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
-    quantity INT(11) NOT NULL,  -- Added quantity field
+    quantity INT(11) NOT NULL,  
     categories VARCHAR(255) NOT NULL,  
     price DECIMAL(10, 2) NOT NULL,
     shippingfee DECIMAL(10, 2) NOT NULL,  
@@ -71,6 +71,7 @@ CREATE TABLE order_details (
     end_date DATE NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,  
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    FOREIGN KEY (customer_id) REFERENCES customer(id) ON DELETE CASCADE
 );
 
 

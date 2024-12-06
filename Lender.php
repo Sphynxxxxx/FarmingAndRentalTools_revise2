@@ -64,7 +64,7 @@ if (isset($_POST['update_product'])) {
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="css/style.css">
+   <link rel="stylesheet" href="css\lender.css">
 </head>
 <body>
 
@@ -140,7 +140,7 @@ if (isset($message)) {
          <textarea class="box" name="description" placeholder="Enter product description" required><?php echo htmlspecialchars($row['description']); ?></textarea>
          <input type="number" min="0" class="box" name="product_quantity" value="<?php echo htmlspecialchars($row['quantity']); ?>" placeholder="Enter the product quantity" required>
          <input type="number" min="0" class="box" name="rent_days" value="<?php echo htmlspecialchars($row['rent_days']); ?>" placeholder="Enter the rent days" required>
-         <select id="Categories" name="categories" required>
+         <select id="categories" name="categories" required>
                 <option value="" disabled selected>Categories</option>
                 <option value="Hand Tools">Hand Tools</option>
                 <option value="Ploughs">Ploughs</option>
