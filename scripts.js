@@ -1,3 +1,19 @@
+    document.addEventListener('DOMContentLoaded', function () {
+        // Select elements
+        const rentButton = document.getElementById('rentBtn');
+        const closeSummaryButton = document.getElementById('closeSummaryBtn');
+        const orderSummary = document.querySelector('.order-summary');
+
+        // Show the order summary when "Rent" is clicked
+        rentButton.addEventListener('click', function () {
+            orderSummary.style.display = 'block'; // Show the order summary
+        });
+
+        // Hide the order summary when "X" is clicked
+        closeSummaryButton.addEventListener('click', function () {
+            orderSummary.style.display = 'none'; // Hide the order summary
+        });
+    });
 
     // Category filter functionality
     const categoryButtons = document.querySelectorAll('.menu-categories button');
@@ -29,22 +45,28 @@
         });
     });
 
+    // Get the sidebar and the toggle button
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
 
-    const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
-    const sidebar = document.getElementById('sidebar');
-
-    toggleSidebarBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('open');
+    // Add event listener to toggle sidebar visibility
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
     });
 
+    // Close sidebar if clicked outside of it
+    document.addEventListener('click', (event) => {
+        if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+    const closeSummaryBtn = document.getElementById('closeSummaryBtn');
+    const orderSummary = document.querySelector('.order-summary');
 
-   // Get the close button and order summary container
-    const closeBtn = document.getElementById('closeBtn');
-    const orderSummary = document.getElementById('order-summary');
-
-    // Add an event listener to the close button
-    closeBtn.addEventListener('click', function() {
-        // Hide the order summary when the close button is clicked
+    // Close the order summary when the "X" button is clicked
+    closeSummaryBtn.addEventListener('click', () => {
         orderSummary.style.display = 'none';
     });
-
+});

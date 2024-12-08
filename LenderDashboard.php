@@ -15,7 +15,7 @@ error_reporting(E_ALL);
 
 // Fetch the lender ID based on the logged-in email
 $lender_email = $_SESSION['email'];
-$sql = "SELECT id FROM lender WHERE email = ?";
+$sql = "SELECT lender_id FROM lender WHERE email = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $lender_email);
 $stmt->execute();
@@ -23,7 +23,7 @@ $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
     $lender = $result->fetch_assoc();
-    $lender_id = $lender['id'];
+    $lender_id = $lender['lender_id'];
 } else {
     die("Lender not found.");
 }
@@ -37,7 +37,6 @@ if (isset($_POST['add_product'])) {
     $quantity = intval($_POST['quantity']);
     $rent_days = intval($_POST['rent_days']);
     $product_price = mysqli_real_escape_string($conn, $_POST['product_price']);
-    $shipping_fee = mysqli_real_escape_string($conn, $_POST['shippingfee']);
     $categories = mysqli_real_escape_string($conn, $_POST['categories']);
     $product_image = $_FILES['product_image']['name'];
     $product_image_tmp_name = $_FILES['product_image']['tmp_name'];
@@ -45,9 +44,9 @@ if (isset($_POST['add_product'])) {
     $status = 'pending';
 
     // Check if all fields are filled
-    if (empty($product_name) || empty($lender_name) || empty($location) || empty($description) || empty($quantity) || empty($product_price) || empty($shipping_fee) || empty($categories) || empty($product_image)) {
+    if (empty($product_name) || empty($lender_name) || empty($location) || empty($description) || empty($quantity) || empty($product_price) || empty($categories) || empty($product_image)) {
         $message[] = 'Please fill out all fields.';
-    } elseif ($quantity <= 0 || $rent_days <= 0 || $product_price <= 0 || $shipping_fee < 0) {
+    } elseif ($quantity <= 0 || $rent_days <= 0 || $product_price <= 0) {
         $message[] = 'Invalid input for numerical fields. Please enter valid values.';
     } else {
         // Check for valid file types
@@ -59,9 +58,9 @@ if (isset($_POST['add_product'])) {
             $message[] = 'File upload failed. Please try again.';
         } else {
             // Prepare SQL query
-            $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, lender_id, location, description, quantity, rent_days, price, shippingfee, categories, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $insert->bind_param("ssisissdssss", $product_name, $lender_name, $lender_id, $location, $description, $quantity, $rent_days, $product_price, $shipping_fee, $categories, $product_image, $status);
-
+            $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, lender_id, location, description, quantity, rent_days, price, categories, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $insert->bind_param("ssissiddsss", $product_name, $lender_name, $lender_id, $location, $description, $quantity, $rent_days, $product_price, $categories, $product_image, $status);
+            
             if ($insert->execute()) {
                 // Move the uploaded file to the folder
                 if (!file_exists('uploaded_img')) {
@@ -137,23 +136,22 @@ if (isset($message)) {
     <ul>
         <li><button onclick="window.location.reload();" class="refresh-btn">Refresh</button></li>
         <li><a href="Profile.php">Profile</a></li>
-        <li><a href="Logout.php">Logout</a></li>
         <li><a href="order_notification.php">Orders</a></li>
+        <li><a href="Logout.php">Logout</a></li>
     </ul>
 </div>
 
 <!-- Product Form -->
 <div class="container">
-    <div class="admin-product-form-container">
         <form action="LenderDashboard.php" method="post" enctype="multipart/form-data">
             <h3>Add a New Product</h3>
             <input type="text" placeholder="Enter Product Name" name="product_name" class="box" required>
             <input type="text" placeholder="Enter Lender Name" name="lender_name" class="box" required>
             
             <select id="register-address" name="location" required>
-                    <option value="" disabled selected>Select Barangay</option>
-                    <option value="Abangay">Abangay</option>
-                    <option value="Amamaros">Amamaros</option>
+                <option value="" disabled selected>Select Barangay</option>
+                <option value="Abangay">Abangay</option>
+                <option value="Amamaros">Amamaros</option>
                     <option value="Bagacay">Bagacay</option>
                     <option value="Barasan">Barasan</option>
                     <option value="Batuan">Batuan</option>
@@ -200,22 +198,22 @@ if (isset($message)) {
                     <option value="Tumcon Ilaya">Tumcon Ilaya</option>
                     <option value="Ubang">Ubang</option>
                     <option value="Zarrague">Zarrague</option>
+                
             </select>
             <input type="text" placeholder="Description" name="description" class="box" required>
             <input type="number" placeholder="Rent Days" name="rent_days" class="box" required>
             <input type="number" placeholder="Quantity" name="quantity" class="box" required>
             <select id="categories" name="categories" required>
-                    <option value="" disabled selected>Categories</option>
-                    <option value="Hand Tools">Hand Tools</option>
-                    <option value="Ploughs">Ploughs</option>
-                    <option value="Seeding Tools">Seeding Tools</option>
-                    <option value="Harvesting Tools">Harvesting Tools</option>
-                    <option value="Tilling Tools">Tilling Tools</option>
-                    <option value="Cutting Tools">Cutting Tools</option>
-                    <option value="Garden Tools">Garden Tools</option>
+                <option value="" disabled selected>Categories</option>
+                <option value="Hand Tools">Hand Tools</option>
+                <option value="Ploughs">Ploughs</option>
+                <option value="Seeding Tools">Seeding Tools</option>
+                <option value="Harvesting Tools">Harvesting Tools</option>
+                <option value="Tilling Tools">Tilling Tools</option>
+                <option value="Cutting Tools">Cutting Tools</option>
+                <option value="Garden Tools">Garden Tools</option>
             </select>
             <input type="number" placeholder="Enter Rent Price" name="product_price" class="box" required>
-            <input type="number" placeholder="Enter Shipping Fee" name="shippingfee" class="box" required>
             <input type="file" accept="image/png, image/jpeg, image/jpg" name="product_image" class="box" required>
             <input type="submit" class="btn" name="add_product" value="Add Product">
             <a href="LenderDashboard2.php" class="btn">View Product List</a>
@@ -223,12 +221,10 @@ if (isset($message)) {
     </div>
 </div>
 
-
 <script>
     // Get the sidebar and the toggle button
     const sidebar = document.querySelector('.sidebar');
     const sidebarToggle = document.querySelector('.sidebar-toggle');
-    const mainContent = document.querySelector('.main-content');
 
     // Add event listener to toggle sidebar visibility
     sidebarToggle.addEventListener('click', () => {
@@ -237,12 +233,10 @@ if (isset($message)) {
 
     // Close sidebar if clicked outside of it
     document.addEventListener('click', (event) => {
-        // Check if the click is outside the sidebar or the toggle button
         if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
             sidebar.classList.remove('active');
         }
     });
-
 </script>
 </body>
 </html>

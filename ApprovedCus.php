@@ -3,7 +3,7 @@
 include 'config.php'; // Ensure your database connection is correct
 
 // SQL query to fetch approved customers
-$sql = "SELECT id, name, contact_number, address, email, images FROM customer WHERE status = 'approved'";
+$sql = "SELECT customer_id, name, contact_number, address, email, images FROM customer WHERE status = 'approved'";
 
 $result = $conn->query($sql);
 
@@ -41,7 +41,7 @@ if (!$result) {
             </tr>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($row['id']); ?></td>
+                    <td><?php echo htmlspecialchars($row['customer_id']); ?></td>
                     <td><?php echo htmlspecialchars($row['name']); ?></td>
                     <td><?php echo htmlspecialchars($row['contact_number']); ?></td>
                     <td><?php echo htmlspecialchars($row['address']); ?></td>

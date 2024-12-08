@@ -251,7 +251,7 @@ if (isset($_GET['delete'])) {
                 <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                 <td><?php echo htmlspecialchars($row['location']); ?></td>
                 <td class="description"><?php echo htmlspecialchars($row['description']); ?></td>
-                <td><?php echo htmlspecialchars($row['quantity']); ?></td>
+                <td><?php echo max(0, $row['quantity']); ?></td>
                 <td><?php echo htmlspecialchars($row['rent_days']); ?></td>
                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
                 <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>

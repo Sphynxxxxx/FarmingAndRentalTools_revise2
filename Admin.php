@@ -9,6 +9,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
     
 </head>
 <body>
@@ -22,11 +24,13 @@
         
         <div class="quick-stats">
             <div class="card">
+                <i class="fa-regular fa-circle-check"></i>
                 <h3>Products & Approvals</h3>
                 <p>Manage and Update product listings. Approve or decline pending applications.</p>
                 <a href="AdminCustomerReg.php" class="btn">Manage Approvals</a>
             </div>
             <div class="card">
+                <i class="fa-solid fa-bag-shopping"></i>
                 <h3>Orders</h3>
                 <p>Tracking Orders</p>
                 <a href="Delivery.php" class="btn">View Orders</a>
@@ -78,6 +82,11 @@
             width: 30%;  
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;  
+            justify-content: center; 
+            align-items: center;     
+            text-align: center;      
         }
 
         .card:hover {
@@ -111,6 +120,17 @@
             background-color: #3b6c4a; 
         }
 
+        .fa-regular.fa-circle-check {
+            font-size: 6em;
+            color: #2F5233;
+        }
+
+        .fa-solid.fa-bag-shopping {
+            font-size: 6em;
+            color: #2F5233;
+        }
+
+
         /* Responsive Design for Small Screens */
         @media (max-width: 768px) {
             .quick-stats {
@@ -122,6 +142,7 @@
                 width: 80%;  
             }
         }
+
 
     </style>
     

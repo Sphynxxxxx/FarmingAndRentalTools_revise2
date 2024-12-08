@@ -10,19 +10,19 @@ if (!isset($_SESSION['email'])) {
 
 // Get the customer's ID from the session
 $customer_email = $_SESSION['email'];
-$customer_query = "SELECT id FROM customer WHERE email = ?";
+$customer_query = "SELECT customer_id FROM customer WHERE email = ?";
 $stmt = $conn->prepare($customer_query);
 $stmt->bind_param("s", $customer_email);
 $stmt->execute();
 $customer_result = $stmt->get_result();
 $customer = $customer_result->fetch_assoc();
-$customer_id = $customer['id'];
+$customer_id = $customer['customer_id'];
 
 // Fetch the most recent order for this customer
 $order_query = "SELECT o.id AS order_id, o.reference_number, o.order_date, o.delivery_method, 
                 c.name, c.email, c.contact_number, c.address
                 FROM orders o
-                JOIN customer c ON o.customer_id = c.id
+                JOIN customer c ON o.customer_id = c.customer_id
                 WHERE o.customer_id = ? 
                 ORDER BY o.order_date DESC 
                 LIMIT 1";

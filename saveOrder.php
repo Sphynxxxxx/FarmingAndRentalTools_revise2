@@ -21,7 +21,7 @@ $deliveryMethod = $data['deliveryMethod'] ?? 'pickup';
 $email = $_SESSION['email'];
 
 // Fetch customer ID based on the email
-$sqlCustomer = "SELECT id FROM customer WHERE email = ?";
+$sqlCustomer = "SELECT customer_id FROM customer WHERE email = ?";
 $stmtCustomer = $conn->prepare($sqlCustomer);
 $stmtCustomer->bind_param("s", $email);
 $stmtCustomer->execute();
@@ -33,7 +33,27 @@ if ($resultCustomer->num_rows === 0) {
 }
 
 $customer = $resultCustomer->fetch_assoc();
-$customer_id = $customer['id'];
+$customer_id = $customer['customer_id'];
+
+// Fetch the lender ID from the product being ordered
+$lender_id = null;
+$productId = $orderDetails[0]['id'] ?? null; // Get the first product ID
+
+if ($productId) {
+    $sqlLender = "SELECT lender_id FROM products WHERE id = ?";
+    $stmtLender = $conn->prepare($sqlLender);
+    $stmtLender->bind_param("i", $productId);
+    $stmtLender->execute();
+    $resultLender = $stmtLender->get_result();
+
+    if ($resultLender->num_rows > 0) {
+        $lender = $resultLender->fetch_assoc();
+        $lender_id = $lender['lender_id'];
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Lender not found for the product!']);
+        exit();
+    }
+}
 
 // Generate a unique reference number
 $referenceNumber = "REF-" . date("Ymd") . "-" . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
@@ -44,13 +64,13 @@ try {
     // Calculate total price for the order
     $totalPrice = 0;
     foreach ($orderDetails as $item) {
-        $totalPrice += $item['quantity'] * $item['price'] +
+        $totalPrice += $item['quantity'] * $item['price'] + 
                       (strtolower($deliveryMethod) === 'pickup' ? 0 : $item['shippingFee']);
     }
 
     // Insert the order into the `orders` table
-    $stmtOrder = $conn->prepare("INSERT INTO orders (customer_id, reference_number, delivery_method, total_price) VALUES (?, ?, ?, ?)");
-    $stmtOrder->bind_param("issd", $customer_id, $referenceNumber, $deliveryMethod, $totalPrice);
+    $stmtOrder = $conn->prepare("INSERT INTO orders (customer_id, lender_id, reference_number, delivery_method, total_price) VALUES (?, ?, ?, ?, ?)");
+    $stmtOrder->bind_param("iissd", $customer_id, $lender_id, $referenceNumber, $deliveryMethod, $totalPrice);
     $stmtOrder->execute();
     $order_id = $conn->insert_id;
 

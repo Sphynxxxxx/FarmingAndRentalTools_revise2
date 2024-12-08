@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Login/Register</title>
+    <title>Borrower Login/Register</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -11,20 +11,20 @@
         <div class="form-container">
             <!-- Login Form -->
             <form id="login-form" class="form">
-                <h2>Customer LogIn</h2>
+                <h2>Borrower LogIn</h2>
                 <input type="text" id="login-email" placeholder="Email" required>
                 <input type="password" id="login-password" placeholder="Password" required>
                 <button type="button" id="login-button">Login</button>
                 <p id="show-register">————— New User? Register Here —————</p>
+                <p id="forgot-password-link">Forgot Password?</p>
                 <a href="VeryMain.php" class="btn">Back</a>
             </form>
 
             <!-- Registration Form -->
             <form id="register-form" class="form hidden" enctype="multipart/form-data">
-                <h2>Customer New Account</h2>
-                <input type="text" id="register-name" name="name" placeholder="Name" required>
-                <input type="number" id="register-contact" name="contact" placeholder="Contact Number" required>
-                
+                <h2>Borrower New Account</h2>
+                <input type="text" id="register-name" name="name" placeholder="Full Name" required>
+                <input type="tel" id="register-contact" name="contact" placeholder="Contact Number" required maxlength="11" oninput="validateContactNumber()">
                 
                 <select id="register-address" name="address" required>
                     <option value="" disabled selected>Select Barangay</option>
@@ -82,6 +82,7 @@
                 <input type="text" id="register-email" name="email" placeholder="Email" required>
                 <input type="password" id="register-password" name="password" placeholder="Password" required>
                 <input type="password" id="register-confirm-password" name="confirmPassword" placeholder="Confirm Password" required>
+                <label for="register-image" class="custom-file-label">Upload ID</label>
                 <input type="file" id="register-image" name="images" accept="image/*" required>
                 
                 <button type="button" class="register-button" id="register-button">Register</button>
@@ -90,6 +91,13 @@
                 <button type="button" id="back-to-login-button">Back to Login</button>
             </form>
 
+            <form id="forgot-password-form" class="form hidden">
+                <h2>Forgot Password</h2>
+                <input type="text" id="forgot-password-email" placeholder="Enter your email" required>
+                <button type="button" id="forgot-password-submit">Submit</button>
+                <p id="forgot-password-message" style="color: red;"></p>
+                <button type="button" id="back-to-login-from-forgot">Back to Login</button>
+            </form>
 
             <!-- Verification Code Form -->
             <form id="verification-form" class="form hidden">
@@ -101,32 +109,54 @@
             </form>
         </div>
     </div>
-
     <script>
         let verificationCode = ''; 
 
-        document.getElementById('show-register').onclick = function() {
-            document.getElementById('login-form').classList.toggle('hidden');
-            document.getElementById('register-form').classList.toggle('hidden');
-        };
+        document.getElementById('show-register').addEventListener('click', function() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+        });
 
-        document.getElementById('back-to-login-button').onclick = function() {
+        // Back to Login from the Register form
+        document.getElementById('back-to-login-button').addEventListener('click', function() {
             document.getElementById('register-form').classList.add('hidden');
             document.getElementById('login-form').classList.remove('hidden');
-        };
+            document.getElementById('register-form').reset(); // Reset the form fields
+        });
 
-        document.getElementById('back-register').onclick = function() {
+        // Back to Register from the Verification form
+        document.getElementById('back-register').addEventListener('click', function() {
             document.getElementById('verification-form').classList.add('hidden');
             document.getElementById('register-form').classList.remove('hidden');
-        };
-        
-        // Generate a random verification code (6 digits)
+        });
+
+        // Generate a random 6-digit verification code
         function generateVerificationCode() {
-            return Math.floor(100000 + Math.random() * 900000).toString(); 
+            return Math.floor(100000 + Math.random() * 900000).toString();
         }
 
-        // Registration form submission with validation
-        document.getElementById('register-button').onclick = async function() {
+        // Validate the contact number input to allow only numbers and limit to 11 digits
+        function validateContactNumber() {
+            const contactInput = document.getElementById('register-contact');
+            let value = contactInput.value;
+
+            // Allow only digits and limit to 11 characters
+            value = value.replace(/\D/g, '');  
+
+            // Limit the number of digits to 11
+            if (value.length > 11) {
+                value = value.slice(0, 11);
+            }
+
+            // Update the input field value
+            contactInput.value = value;
+        }
+
+        // Attach the validateContactNumber function to the input event of the contact number field
+        document.getElementById('register-contact').addEventListener('input', validateContactNumber);
+
+        // Handle Registration Button Click
+        document.getElementById('register-button').addEventListener('click', async function() {
             const name = document.getElementById('register-name').value;
             const contact = document.getElementById('register-contact').value;
             const address = document.getElementById('register-address').value;
@@ -147,16 +177,16 @@
                 return;
             }
 
-            // Check for valid email format (optional)
+            // Check for valid email format
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(email)) {
                 document.getElementById('registration-message').innerText = "Please enter a valid email address!";
                 return;
             }
 
-            // Check for valid contact number
-            if (!/^\d{11}$/.test(contact)) {
-                document.getElementById('registration-message').innerText = "Please enter a valid 11-digit contact number!";
+            // Check for valid contact number (11 digits and starts with 09)
+            if (!/^\d{11}$/.test(contact) || !contact.startsWith('09')) {
+                document.getElementById('registration-message').innerText = "Please enter a valid 11-digit contact number starting with 09!";
                 return;
             }
 
@@ -169,9 +199,9 @@
             // Show the verification form
             document.getElementById('register-form').classList.add('hidden');
             document.getElementById('verification-form').classList.remove('hidden');
-        };
+        });
 
-        // Send verification code to the email (via PHPMailer)
+        // Send verification code to the email using a PHP backend (via fetch)
         async function sendVerificationEmail(email, code) {
             const response = await fetch('send_verification_email.php', {
                 method: 'POST',
@@ -190,19 +220,18 @@
             }
         }
 
-        // Verify the code entered by the user
-        document.getElementById('verify-button').onclick = function() {
+        // Handle Verification Code Submission
+        document.getElementById('verify-button').addEventListener('click', function() {
             const enteredCode = document.getElementById('verification-code').value;
 
             if (enteredCode === verificationCode) {
-                
                 completeRegistration();
             } else {
                 document.getElementById('verification-message').innerText = "Invalid verification code!";
             }
-        };
+        });
 
-        // Complete the registration process
+        // Complete Registration after successful verification
         async function completeRegistration() {
             const name = document.getElementById('register-name').value;
             const contact = document.getElementById('register-contact').value;
@@ -235,8 +264,8 @@
             }
         }
 
-        // Login form submission
-        document.getElementById('login-button').onclick = function() {
+        // Handle Login Button Click
+        document.getElementById('login-button').addEventListener('click', function() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
@@ -261,7 +290,46 @@
                 console.error('Error:', error);
                 alert('An error occurred during login.');
             });
-        };
+        });
+
+        // Handle Forgot Password
+        document.getElementById('forgot-password-link').addEventListener('click', function() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('forgot-password-form').classList.remove('hidden');
+        });
+
+        document.getElementById('back-to-login-from-forgot').addEventListener('click', function() {
+            document.getElementById('forgot-password-form').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+        });
+
+        document.getElementById('forgot-password-submit').addEventListener('click', async function () {
+            const email = document.getElementById('forgot-password-email').value;
+
+            if (!email) {
+                document.getElementById('forgot-password-message').innerText = "Email is required!";
+                return;
+            }
+
+            const response = await fetch('send_reset_email.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }) 
+            });
+
+            const data = await response.json(); // Parse the JSON response from PHP
+
+            if (data.success) {
+                alert("A reset link has been sent to your email.");
+                document.getElementById('forgot-password-form').classList.add('hidden');
+                document.getElementById('login-form').classList.remove('hidden');
+            } else {
+                document.getElementById('forgot-password-message').innerText = data.message || "Failed to send reset link.";
+            }
+        });
+
     </script>
 </body>
 </html>

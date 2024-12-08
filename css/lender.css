@@ -1,17 +1,18 @@
 body {
     font-family: Arial, sans-serif;
     background-color: #f9f9f9;
-    margin: 0;
-    padding: 0;
     color: #333;
 }
 
 .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    margin: 20px auto;
+    max-width: 1200px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
 
 .admin-product-form-container {
     background-color: white;
@@ -34,7 +35,7 @@ h3.title {
 }
 
 .box {
-    width: 100%;
+    width: auto;
     padding: 12px;
     margin: 8px 0;
     border: 1px solid #ccc;
@@ -126,10 +127,14 @@ form .title {
     font-weight: bold;
 }
 
+.input{
+    width: 10px;
+}
 form .input-group input,
 form .input-group select,
 form .input-group textarea {
     font-size: 16px;
+    
 }
 
 form .input-group {
@@ -245,7 +250,7 @@ select#categories option {
     }
 
     .sidebar-toggle {
-        display: block; /* Make hamburger icon visible on smaller screens */
+        display: block; 
     }
 }
 

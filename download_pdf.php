@@ -11,7 +11,7 @@ if (isset($_GET['order_reference'])) {
     $order_query = "SELECT o.id AS order_id, o.reference_number, o.order_date, o.delivery_method, 
                     c.name, c.email, c.contact_number, c.address
                     FROM orders o
-                    JOIN customer c ON o.customer_id = c.id
+                    JOIN customer c ON o.customer_id = c.customer_id
                     WHERE o.reference_number = ?";
     $stmt = $conn->prepare($order_query);
     $stmt->bind_param("s", $order_reference);
@@ -59,13 +59,15 @@ if (isset($_GET['order_reference'])) {
         $pdf->Cell(0, 10, 'Order Date: ' . $order['order_date'], 0, 1);
         $pdf->Cell(0, 10, 'Delivery Method: ' . $order['delivery_method'], 0, 1);
         
-        // Order details
+        // Order details table
         $pdf->Ln(10);
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, 'Product Name', 1);
-        $pdf->Cell(30, 10, 'Quantity', 1);
-        $pdf->Cell(30, 10, 'Price', 1);
-        $pdf->Cell(30, 10, 'Shipping Fee', 1);
+        $pdf->Cell(40, 10, 'Product Name', 1);
+        $pdf->Cell(25, 10, 'Quantity', 1);
+        $pdf->Cell(25, 10, 'Price', 1);
+        $pdf->Cell(25, 10, 'Shipping Fee', 1);
+        $pdf->Cell(30, 10, 'Start Date', 1);
+        $pdf->Cell(30, 10, 'End Date', 1);
         $pdf->Cell(30, 10, 'Subtotal', 1);
         $pdf->Ln();
         
@@ -74,16 +76,18 @@ if (isset($_GET['order_reference'])) {
             $shipping_subtotal = strtolower($order['delivery_method']) == 'pickup' ? 0 : $detail['quantity'] * $detail['shippingfee'];
             $subtotal = $detail['quantity'] * $detail['price'] + $shipping_subtotal;
             
-            $pdf->Cell(50, 10, $detail['product_name'], 1);
-            $pdf->Cell(30, 10, $detail['quantity'], 1);
-            $pdf->Cell(30, 10, '₱' . number_format($detail['price'], 2), 1);
-            $pdf->Cell(30, 10, '₱' . number_format($detail['shippingfee'], 2), 1);
+            $pdf->Cell(40, 10, $detail['product_name'], 1);
+            $pdf->Cell(25, 10, $detail['quantity'], 1);
+            $pdf->Cell(25, 10, '₱' . number_format($detail['price'], 2), 1);
+            $pdf->Cell(25, 10, '₱' . number_format($detail['shippingfee'], 2), 1);
+            $pdf->Cell(30, 10, $detail['start_date'], 1); 
+            $pdf->Cell(30, 10, $detail['end_date'], 1);  
             $pdf->Cell(30, 10, '₱' . number_format($subtotal, 2), 1);
             $pdf->Ln();
         }
         
         // Output PDF
-        $pdf->Output('order_' . $order['reference_number'] . '.pdf', 'D');  // Force download
+        $pdf->Output('order_' . $order['reference_number'] . '.pdf', 'D');  
 
     } else {
         echo "Order not found!";

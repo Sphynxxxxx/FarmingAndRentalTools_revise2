@@ -19,25 +19,44 @@ body {
   margin-left: 0;
 }
 
+.sidebar-toggle {
+  display: block;
+  background: none;
+  border: none;
+  color:  #2F5233;
+  font-size: 30px;
+  cursor: pointer;
+  font-size: 40px;
+}
+
+.sidebar.active {
+  left: 0; 
+}
+
+
 .sidebar {
+  width: 200px;
+  background-color: #2F5233;
+  color: white;
+  height: 100vh;
+  padding: 20px;
   position: fixed;
   top: 0;
-  left: -250px;
-  width: 100px;
-  height: 100%;
-  background-color: #fff;
-  padding-top: 60px;
-  transition: 0.3s;
-  z-index: 1;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  left: -250px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border-right: 1px solid #ddd;
+  transition: transform 0.3s ease;
+  z-index: 9999;
 }
 
-.sidebar.open {
-  left: 0;
-}
+
+
+
 
 .sidebar .logo {
-  color: #2F5233;
+  color: #ffffff;
   text-align: center;
   padding-bottom: 20px;
   font-size: 20px;
@@ -55,7 +74,7 @@ body {
 }
 
 .sidebar nav ul li a {
-  color: #333;
+  color: #ffffff;
   text-decoration: none;
   display: block;
   transition: background-color 0.3s;
@@ -74,13 +93,12 @@ body {
   flex-grow: 1;
   padding: 30px;
   background-color: #fff;
-  margin-left: 250px;
   transition: margin-left 0.3s ease;
 }
 
 .main-content header {
   display: flex;
-  justify-content: space-between;
+  gap: 30px;
   align-items: center;
   margin-bottom: 30px;
   border-bottom: 1px solid #ddd;
@@ -94,8 +112,11 @@ body {
 }
 
 #search-box {
+  position: absolute;
+  margin-right: 10%;
+  right: 0px;
   padding: 8px 15px;
-  width: 250px;
+  width: 50%;
   font-size: 14px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -107,6 +128,41 @@ body {
   border-color: #2F5233;
   outline: none;
 }
+
+.search-container{
+  display: flex;
+  align-items: center;
+}
+
+.notification-bell {
+  position: absolute;
+  top: 35px;
+  right: 60px;
+  font-size: 30px;
+}
+
+.notification-bell a {
+  color: #2F5233; 
+}
+
+.notification-bell a:hover {
+  color: #0077ff; 
+}
+
+.profile-picture img {
+  position: absolute;
+  margin-right: 100px;
+  margin-top: 35px;
+  top: 0px;
+  right: 0px;
+  border-radius: 50%; 
+  object-fit: cover;  
+  width: 50px;
+  height: 50px;
+  border: 2px solid #2F5233;
+  
+}
+
 
 .menu-categories {
   display: flex;
@@ -125,6 +181,13 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
+.categories {
+  font-size: 30px;
+  font-weight: bold; 
+  color: #2F5233; 
+}
+
+
 .menu-categories button:hover {
   background-color: #2F5233;
   color: #fff;
@@ -133,16 +196,20 @@ body {
 .menu-items {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
+  gap: 100px;
 }
 
 .item {
+  width: 300px; 
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
   text-align: center;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow: hidden;
 }
 
 .item:hover {
@@ -151,7 +218,7 @@ body {
 
 .item img {
   width: 100%;
-  height: 150px;
+  height: auto;
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 15px;

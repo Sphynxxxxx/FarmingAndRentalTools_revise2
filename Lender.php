@@ -13,7 +13,7 @@ if (isset($_POST['update_product'])) {
     $lender_name = $_POST['lender_name'];
     $location = $_POST['location'];
     $description = $_POST['description'];
-    $quantity = isset($_POST['product_quantity']) ? intval($_POST['product_quantity']) : 0; 
+    $quantity = isset($_POST['product_quantity']) ? max(0, intval($_POST['product_quantity'])) : 0;
     $rent_days = isset($_POST['rent_days']) ? intval($_POST['rent_days']) : 0;
     $categories = $_POST['categories'];
     $product_price = $_POST['product_price'];
@@ -138,7 +138,7 @@ if (isset($message)) {
                     <option value="Zarrague">Zarrague</option>
             </select>
          <textarea class="box" name="description" placeholder="Enter product description" required><?php echo htmlspecialchars($row['description']); ?></textarea>
-         <input type="number" min="0" class="box" name="product_quantity" value="<?php echo htmlspecialchars($row['quantity']); ?>" placeholder="Enter the product quantity" required>
+         <input type="number" min="0" class="box" name="product_quantity" value="<?php echo max(0, $row['quantity']); ?>" placeholder="Enter the product quantity" required>
          <input type="number" min="0" class="box" name="rent_days" value="<?php echo htmlspecialchars($row['rent_days']); ?>" placeholder="Enter the rent days" required>
          <select id="categories" name="categories" required>
                 <option value="" disabled selected>Categories</option>

@@ -20,11 +20,11 @@
             </form>
 
             
+            <!-- Registration Form -->
             <form id="register-form" class="form hidden" enctype="multipart/form-data">
                 <h2>Lender New Account</h2>
-                <input type="text" id="register-name" name="name" placeholder="Name" required>
-                <input type="number" id="register-contact" name="contact" placeholder="Contact Number" required>
-                
+                <input type="text" id="register-name" name="name" placeholder="Full Name" required>
+                <input type="tel" id="register-contact" name="contact" placeholder="Contact Number" required maxlength="11" oninput="validateContactNumber()">
                 
                 <select id="register-address" name="address" required>
                     <option value="" disabled selected>Select Barangay</option>
@@ -82,12 +82,21 @@
                 <input type="text" id="register-email" name="email" placeholder="Email" required>
                 <input type="password" id="register-password" name="password" placeholder="Password" required>
                 <input type="password" id="register-confirm-password" name="confirmPassword" placeholder="Confirm Password" required>
+                <label for="register-image" class="custom-file-label">Upload ID</label>
                 <input type="file" id="register-image" name="images" accept="image/*" required>
                 
                 <button type="button" class="register-button" id="register-button">Register</button>
                 <p id="registration-message" style="color: red;"></p>
                 
                 <button type="button" id="back-to-login-button">Back to Login</button>
+            </form>
+
+            <form id="forgot-password-form" class="form hidden">
+                <h2>Forgot Password</h2>
+                <input type="text" id="forgot-password-email" placeholder="Enter your email" required>
+                <button type="button" id="forgot-password-submit">Submit</button>
+                <p id="forgot-password-message" style="color: red;"></p>
+                <button type="button" id="back-to-login-from-forgot">Back to Login</button>
             </form>
 
 

@@ -7,6 +7,8 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
+$profileImage = isset($_SESSION['profile_image']) ? $_SESSION['profile_image'] : 'default.png';
+
 // Fetch products
 $sql = "SELECT id, categories, product_name, lender_name, location, description, rent_days, price, shippingfee, created_at, image, quantity, lender_id FROM products WHERE status = 'approved'";
 $result = $conn->query($sql);
@@ -17,37 +19,54 @@ $result = $conn->query($sql);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Farming Tool and Rental System</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/Customercss.css?v=1.0">
  
 </head>
 <body>
-  <button class="open-sidebar-btn" id="toggleSidebarBtn">&#9776;</button>
-  <!-- Sidebar -->
-    <div class="container">
-        <div class="sidebar" id="sidebar">
-        <div class="logo">
-            <h2>Farming Tool and Rental System</h2>
-        </div>
-        <nav>
-            <ul>
-            <li><a href="CusProfile.php">Profile</a></li>
-            <li><a href="History.php">History</a></li> 
-            <!--<li><a href="Notification.php">Notification</a></li>  -->
-            <li><a href="CusLogout.php">Logout</a></li>
-            </ul>
-        </nav>
-    </div>
+
 
 
     <!-- Main Content -->
     <div class="main-content">
-      <header>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>Farming Tool and Rental System</h2>
+            </div>
+            <!-- Close button -->
+            <nav>
+                <ul>
+                    <li><a href="CusProfile.php">Profile</a></li>
+                    <li><a href="History.php">History</a></li>
+                    <!--<li><a href="Notification.php">Notification</a></li>-->
+                    <li><a href="CusLogout.php">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <header>
+        <div class="sidebar-toggle">
+            <i class="fa-solid fa-bars"></i> 
+        </div>
         <div class="user-welcome">
           <p>Welcome, <?php echo htmlspecialchars($_SESSION['name']); ?>!</p>
         </div>
-        <input id="search-box" type="text" placeholder="Search Product here...">
+        <div class="search-container">
+            <input id="search-box" type="text" placeholder="Search Product here...">
+            <div class="profile-picture">
+                <a href="CusProfile.php">
+                    <img src="Cusprofile_pics/<?php echo htmlspecialchars($profileImage); ?>" alt="Profile Picture" height="50" width="50">
+                </a>
+            </div>
+            <div class="notification-bell">
+                <a href="notifications.php">
+                    <i class="fa-solid fa-bell" style="font-size: 24px; color: #2F5233;"></i>
+                </a>
+            </div>
+        </div>
         <div class="table-info"></div>
-      </header>
+    </header>
 
       <!-- Categories Buttons -->
       <div class="menu-categories">
@@ -60,56 +79,60 @@ $result = $conn->query($sql);
           <button data-category="Cutting Tools">Cutting Tools</button>
           <button data-category="Garden Tools">Garden Tools</button>
       </div>
+      
 
       <!-- Menu Items -->
-      <div class="menu-items" id="menu-items">
-      <?php
-      if ($result->num_rows > 0) {
-          while ($row = $result->fetch_assoc()) {
-              $categories = htmlspecialchars($row['categories']);
-              $productName = htmlspecialchars($row['product_name']);
-              $lenderName = htmlspecialchars($row['lender_name']);
-              $location = htmlspecialchars($row['location']);
-              $description = htmlspecialchars($row['description']);
-              $rent_days = $row['rent_days'];  
-              $price = number_format($row['price'], 2);
-              $shippingFee = number_format($row['shippingfee'], 2);
-              $image = htmlspecialchars($row['image']);
-              $availableQuantity = $row['quantity'];
-              $outOfStockClass = $availableQuantity <= 0 ? 'out-of-stock' : '';
-              $outOfStockLabel = $availableQuantity <= 0 ? '<div class="out-of-stock-label">Out of Stock</div>' : '';
-              ?>
-              <div class="item <?php echo $outOfStockClass; ?>" data-id="<?php echo $row['id']; ?>" data-categories ="<?php echo $row['categories']; ?>" data-name="<?php echo $productName; ?>" data-price="<?php echo $price; ?>" data-shippingfee="<?php echo $shippingFee; ?>" data-quantity="<?php echo $availableQuantity; ?>">
-                  <?php echo $outOfStockLabel; ?><br>
-                  <?php echo $categories; ?>
-                  <p><strong>Product Name:</strong> <?php echo $productName; ?></p>
-                  <p><strong>Lender Name:</strong> <?php echo $lenderName; ?></p>
-                  <p><strong>Location:</strong> <?php echo $location; ?></p>
-                  <p><strong>Description:</strong> <?php echo $description; ?></p>
-                  <p><strong>Rent Days:</strong> <?php echo $rent_days; ?> </p>
-                  <img src="uploaded_img/<?php echo $image; ?>" alt="<?php echo $productName; ?>" onerror="this.src='uploaded_img/default_image.jpg';">
-                  <h3 class="item-price" style="color: red;">₱<?php echo $price; ?></h3>
+        <div class="menu-items" id="menu-items">
+            <?php
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $categories = htmlspecialchars($row['categories']);
+                    $productName = htmlspecialchars($row['product_name']);
+                    $lenderName = htmlspecialchars($row['lender_name']);
+                    $location = htmlspecialchars($row['location']);
+                    $description = htmlspecialchars($row['description']);
+                    $rent_days = $row['rent_days'];  
+                    $price = number_format($row['price'], 2);
+                    $shippingFee = number_format($row['shippingfee'], 2);
+                    $image = htmlspecialchars($row['image']);
+                    $availableQuantity = $row['quantity'];
+                    $outOfStockClass = $availableQuantity <= 0 ? 'out-of-stock' : '';
+                    $outOfStockLabel = $availableQuantity <= 0 ? '<div class="out-of-stock-label">Out of Stock</div>' : '';
+                    ?>
+                    <div class="item <?php echo $outOfStockClass; ?>" data-id="<?php echo $row['id']; ?>" data-categories ="<?php echo $row['categories']; ?>" data-name="<?php echo $productName; ?>" data-price="<?php echo $price; ?>" data-shippingfee="<?php echo $shippingFee; ?>" data-quantity="<?php echo $availableQuantity; ?>">
+                        <?php echo $outOfStockLabel; ?>
+                        <div class="categories">
+                            <?php echo $categories; ?>
+                        </div>
+                        <p><strong>Product Name:</strong> <?php echo $productName; ?></p>
+                        <p><strong>Lender Name:</strong> <?php echo $lenderName; ?></p>
+                        <p><strong>Location:</strong> <?php echo $location; ?></p>
+                        <p><strong>Description:</strong> <?php echo $description; ?></p>
+                        <p><strong>Rent Days:</strong> <?php echo $rent_days; ?> </p>
+                        <img src="uploaded_img/<?php echo $image; ?>" alt="<?php echo $productName; ?>" onerror="this.src='uploaded_img/default_image.jpg';">
+                        <h3 class="item-price" style="color: red;">₱<?php echo $price; ?></h3>
 
-                  <p><strong>Available:</strong> <?php echo $availableQuantity; ?></p>
-                  <div class="quantity-control">
-                      <button class="minus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>-</button>
-                      <span class="quantity">0</span>
-                      <button class="plus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>+</button>
-                      <button class="rent-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Rent</button>
-                  </div>
-              </div>
-              <?php
-          }
-      } else {
-          echo "<p>No products available</p>";
-      }
-      $conn->close();
-      ?>
+                        <p><strong>Available:</strong> <?php echo max(0, $availableQuantity); ?></p>
+                        <div class="quantity-control">
+                            <button class="minus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>-</button>
+                            <span class="quantity">0</span>
+                            <button class="plus-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>+</button>
+                            <button class="rent-btn" <?php echo $availableQuantity <= 0 ? 'disabled' : ''; ?>>Rent</button>
+                        </div>
+                    </div>
+                <?php
+                }
+            } else {
+                echo "<p>No products available</p>";
+            }
+            $conn->close();
+            ?>
       </div>
     </div>
 
     <!-- Order Summary -->
-    <div class="order-summary">
+    <div class="order-summary" style = "display: none;">
+        <button class="close-summary" id="closeSummaryBtn">X</button>
         <h3>Order Summary</h3>
 
         <!-- Order List Section -->
@@ -160,10 +183,12 @@ $result = $conn->query($sql);
         <button class="place-order">Place Order</button>
         </div>
 
-</div>
+    </div>
     <script src="scripts.js"></script>
   <script>
       document.addEventListener('DOMContentLoaded', () => {
+            const orderSummary = document.querySelector('.order-summary');
+            const closeSummaryBtn = document.getElementById('closeSummaryBtn');
             const orderList = document.getElementById('order-list');
             const subtotalElement = document.getElementById('subtotal');
             const shippingFeeElement = document.getElementById('shippingfee');
@@ -175,6 +200,13 @@ $result = $conn->query($sql);
             let orderItems = []; 
             let deliveryMethod = 'pickup'; 
 
+            function showOrderSummary() {
+                orderSummary.style.display = 'block';
+            }
+
+            function hideOrderSummary() {
+                orderSummary.style.display = 'none';
+            }
             // Update the order summary dynamically
             function updateOrderSummary() {
                 orderList.innerHTML = '';
@@ -271,6 +303,7 @@ $result = $conn->query($sql);
 
                     // Update the order summary display
                     updateOrderSummary();
+                    showOrderSummary();
                 });
             });
 
@@ -327,58 +360,75 @@ $result = $conn->query($sql);
                 });
             });
 
+            
 
 
-            // Handle order placement
+
+
             placeOrderButton.addEventListener('click', () => {
-                if (orderItems.length === 0) {
-                    alert('Please add items to your order.');
-                    return;
-                }
+            if (orderItems.length === 0) {
+                alert('Please add items to your order.');
+                return;
+            }
 
-                const startDate = document.getElementById('start_date').value;
-                const endDate = document.getElementById('end_date').value;
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
 
-                if (!startDate || !endDate) {
-                    alert('Please select start and end dates for your rental period.');
-                    return;
-                }
+            if (!startDate || !endDate) {
+                alert('Please select start and end dates for your rental period.');
+                return;
+            }
 
-                if (new Date(startDate) > new Date(endDate)) {
-                    alert('End date cannot be before start date.');
-                    return;
-                }
+            if (new Date(startDate) > new Date(endDate)) {
+                alert('End date cannot be before start date.');
+                return;
+            }
 
-                const orderData = {
-                    orderDetails: orderItems.map(item => ({
-                        id: item.id,
-                        lender_id: item.lender_id, 
-                        quantity: item.quantity,
-                        price: item.price
-                    })),
-                    deliveryMethod,
+            const orderData = {
+                orderDetails: orderItems.map(item => ({
+                    id: item.id,
+                    lender_id: item.lender_id,
+                    quantity: item.quantity,
+                    price: item.price,
                     start_date: startDate,
                     end_date: endDate
-                };
+                })),
+                deliveryMethod,
+                start_date: startDate,
+                end_date: endDate
+            };
 
-                fetch('saveOrder.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(orderData),
+            fetch('saveOrder.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = 'order_details.php';
+                    } else {
+                        alert(data.message);
+                    }
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            window.location.href = 'order_details.php';
-                        } else {
-                            alert(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred. Please try again.');
-                    });
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
             });
+            
+            document.querySelectorAll('.rent-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const orderSummary = document.querySelector('.order-summary');
+                    orderSummary.style.display = 'block'; // Show the order summary
+                });
+            });
+
+            document.querySelector('.close-summary-btn').addEventListener('click', () => {
+                const orderSummary = document.querySelector('.order-summary');
+                orderSummary.style.display = 'none'; // Hide the order summary
+            });
+
 
         });
 

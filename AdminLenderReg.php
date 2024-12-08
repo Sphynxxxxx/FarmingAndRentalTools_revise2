@@ -5,7 +5,7 @@
 // Approve lender
 if (isset($_GET['approve'])) {
     $id = intval($_GET['approve']);
-    $stmt = $conn->prepare("UPDATE lender SET status = 'approved' WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE lender SET status = 'approved' WHERE lender_id = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
         header('Location: AdminLenderReg.php');
@@ -19,7 +19,7 @@ if (isset($_GET['approve'])) {
 // Decline lender
 if (isset($_GET['decline'])) {
     $id = intval($_GET['decline']);
-    $stmt = $conn->prepare("UPDATE lender SET status = 'declined' WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE lender SET status = 'declined' WHERE lender_id = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
         header('Location: AdminLenderReg.php');
@@ -35,7 +35,7 @@ if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
 
     
-    $select_image = $conn->prepare("SELECT images FROM lender WHERE id = ?");
+    $select_image = $conn->prepare("SELECT images FROM lender WHERE lender_id = ?");
     $select_image->bind_param("i", $id);
     $select_image->execute();
     $result = $select_image->get_result();
@@ -48,7 +48,7 @@ if (isset($_GET['delete'])) {
     }
 
     // Delete the record from the database
-    $delete_stmt = $conn->prepare("DELETE FROM lender WHERE id = ?");
+    $delete_stmt = $conn->prepare("DELETE FROM lender WHERE lender_id = ?");
     $delete_stmt->bind_param("i", $id);
     if ($delete_stmt->execute()) {
         header('Location: AdminLenderReg.php');
@@ -102,9 +102,9 @@ $declined_result = $conn->query("SELECT * FROM lender WHERE status = 'declined'"
                             <?php echo htmlspecialchars($row['email']); ?>
                             <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="Image" style="width:200px;height:200px;">
 
-                            <a href="?approve=<?php echo $row['id']; ?>">Approve</a> | 
-                            <a href="?decline=<?php echo $row['id']; ?>">Decline</a> |
-                            <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this lender?');">Delete</a>
+                            <a href="?approve=<?php echo $row['lender_id']; ?>">Approve</a> | 
+                            <a href="?decline=<?php echo $row['lender_id']; ?>">Decline</a> |
+                            <a href="?delete=<?php echo $row['lender_id']; ?>" onclick="return confirm('Are you sure you want to delete this lender?');">Delete</a>
                         </li>
                     <?php endwhile; ?>
                 </ul>
@@ -125,7 +125,7 @@ $declined_result = $conn->query("SELECT * FROM lender WHERE status = 'declined'"
                             <?php echo htmlspecialchars($row['address']); ?> - 
                             <?php echo htmlspecialchars($row['email']); ?>
                             <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="Image" style="width:200px;height:200px;">
-                            <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this lender?');">Delete</a>
+                            <a href="?delete=<?php echo $row['lender_id']; ?>" onclick="return confirm('Are you sure you want to delete this lender?');">Delete</a>
                         </li>
                     <?php endwhile; ?>
                 </ul>
@@ -146,7 +146,7 @@ $declined_result = $conn->query("SELECT * FROM lender WHERE status = 'declined'"
                             <?php echo htmlspecialchars($row['address']); ?> - 
                             <?php echo htmlspecialchars($row['email']); ?>
                             <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="Image" style="width:200px;height:200px;">
-                            <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this lender?');">Delete</a>
+                            <a href="?delete=<?php echo $row['lender_id']; ?>" onclick="return confirm('Are you sure you want to delete this lender?');">Delete</a>
                         </li>
                     <?php endwhile; ?>
                 </ul>

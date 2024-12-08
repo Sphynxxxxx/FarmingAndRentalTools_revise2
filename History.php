@@ -12,7 +12,7 @@ if (!isset($_SESSION['email'])) {
 $userEmail = $_SESSION['email'];
 
 // Query to get the customer ID based on email
-$sqlCustomer = "SELECT id FROM customer WHERE email = ?";
+$sqlCustomer = "SELECT customer_id FROM customer WHERE email = ?";
 $stmt = $conn->prepare($sqlCustomer);
 $stmt->bind_param("s", $userEmail);
 $stmt->execute();
@@ -24,7 +24,7 @@ if ($resultCustomer->num_rows === 0) {
 }
 
 $customer = $resultCustomer->fetch_assoc();
-$customerId = $customer['id'];
+$customerId = $customer['customer_id'];
 
 // Query to get orders for this customer
 $sqlOrders = "

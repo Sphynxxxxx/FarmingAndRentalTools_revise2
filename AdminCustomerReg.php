@@ -5,7 +5,7 @@
 // Approve customer
 if (isset($_GET['approve'])) {
     $id = intval($_GET['approve']);
-    $stmt = $conn->prepare("UPDATE customer SET status = 'approved' WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE customer SET status = 'approved' WHERE customer_id = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
         header('Location: AdminCustomerReg.php');
@@ -19,7 +19,7 @@ if (isset($_GET['approve'])) {
 // Decline customer
 if (isset($_GET['decline'])) {
     $id = intval($_GET['decline']);
-    $stmt = $conn->prepare("UPDATE customer SET status = 'declined' WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE customer SET status = 'declined' WHERE customer_id = ?");
     $stmt->bind_param("i", $id);
     if ($stmt->execute()) {
         header('Location: AdminCustomerReg.php');
@@ -35,7 +35,7 @@ if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
 
     
-    $select_image = $conn->prepare("SELECT images FROM customer WHERE id = ?");
+    $select_image = $conn->prepare("SELECT images FROM customer WHERE customer_id = ?");
     $select_image->bind_param("i", $id);
     $select_image->execute();
     $result = $select_image->get_result();
@@ -48,7 +48,7 @@ if (isset($_GET['delete'])) {
     }
 
     // Delete the record from the database
-    $delete_stmt = $conn->prepare("DELETE FROM customer WHERE id = ?");
+    $delete_stmt = $conn->prepare("DELETE FROM customer WHERE customer_id = ?");
     $delete_stmt->bind_param("i", $id);
     if ($delete_stmt->execute()) {
         header('Location: AdminCustomerReg.php');
@@ -102,9 +102,9 @@ $declined_result = $conn->query("SELECT * FROM customer WHERE status = 'declined
                             <?php echo htmlspecialchars($row['email']); ?>
                             <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="Image" style="width:200px;height:200px;">
 
-                            <a href="?approve=<?php echo $row['id']; ?>">Approve</a> | 
-                            <a href="?decline=<?php echo $row['id']; ?>">Decline</a> |
-                            <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
+                            <a href="?approve=<?php echo $row['customer_id']; ?>">Approve</a> | 
+                            <a href="?decline=<?php echo $row['customer_id']; ?>">Decline</a> |
+                            <a href="?delete=<?php echo $row['customer_id']; ?>" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
                         </li>
                     <?php endwhile; ?>
                 </ul>
@@ -115,7 +115,7 @@ $declined_result = $conn->query("SELECT * FROM customer WHERE status = 'declined
 
         <!-- Approved customers -->
         <div class="table">
-            <h2>Verified Customer Registrations</h2>
+            <h2>Verified Borrower Registrations</h2>
             <?php if ($approved_result && $approved_result->num_rows > 0): ?>
                 <ul>
                     <?php while ($row = $approved_result->fetch_assoc()): ?>
@@ -125,7 +125,7 @@ $declined_result = $conn->query("SELECT * FROM customer WHERE status = 'declined
                             <?php echo htmlspecialchars($row['address']); ?> - 
                             <?php echo htmlspecialchars($row['email']); ?>
                             <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="Image" style="width:200px;height:200px;">
-                            <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
+                            <a href="?delete=<?php echo $row['customer_id']; ?>" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
                         </li>
                     <?php endwhile; ?>
                 </ul>
@@ -136,7 +136,7 @@ $declined_result = $conn->query("SELECT * FROM customer WHERE status = 'declined
 
         <!-- Declined customers -->
         <div class="table">
-            <h2>Declined Customer Registrations</h2>
+            <h2>Declined Borrower Registrations</h2>
             <?php if ($declined_result && $declined_result->num_rows > 0): ?>
                 <ul>
                     <?php while ($row = $declined_result->fetch_assoc()): ?>
@@ -146,12 +146,12 @@ $declined_result = $conn->query("SELECT * FROM customer WHERE status = 'declined
                             <?php echo htmlspecialchars($row['address']); ?> - 
                             <?php echo htmlspecialchars($row['email']); ?>
                             <img src="<?php echo htmlspecialchars($row['images']); ?>" alt="Image" style="width:200px;height:200px;">
-                            <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
+                            <a href="?delete=<?php echo $row['customer_id']; ?>" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
                         </li>
                     <?php endwhile; ?>
                 </ul>
             <?php else: ?>
-                <p>No declined customer registrations.</p>
+                <p>No declined Borrower registrations.</p>
             <?php endif; ?>
         </div>
 

@@ -32,7 +32,7 @@ if (isset($_POST['update_profile'])) {
     }
 
     
-    $update = "UPDATE lender SET name = '$name', address = '$address', contact_number = '$contact_number' WHERE email = '$email'";
+    $update = "UPDATE lender SET lender_name = '$name', address = '$address', contact_number = '$contact_number' WHERE email = '$email'";
     $update_query = mysqli_query($conn, $update);
 
     if ($update_query) {
@@ -84,7 +84,7 @@ if (isset($message)) {
 
             <!-- Lender Information -->
             <label for="id">ID</label>
-            <input type="text" name="id" value="<?php echo htmlspecialchars($lender['id']); ?>" class="box" disabled>
+            <input type="text" name="lender_id" value="<?php echo htmlspecialchars($lender['lender_id']); ?>" class="box" disabled>
 
             <label for="name">Name</label>
             <input type="text" name="name" value="<?php echo htmlspecialchars($lender['lender_name']); ?>" class="box" required>

@@ -40,6 +40,9 @@ if (isset($_POST['update_profile'])) {
             move_uploaded_file($profile_image_tmp_name, $profile_image_folder);
             $update_image = "UPDATE customer SET profile_image = '$profile_image' WHERE email = '$email'";
             mysqli_query($conn, $update_image);
+
+            // Update session with the new profile image
+            $_SESSION['profile_image'] = $profile_image;
         } else {
             $message = 'Invalid image format. Only JPG, JPEG, and PNG are allowed.';
         }
@@ -100,9 +103,8 @@ if (isset($message)) {
             <label for="profile_image">Upload New Profile Picture</label>
             <input type="file" name="profile_image" accept="image/png, image/jpeg, image/jpg" class="box">
 
-            
             <label for="id">ID</label>
-            <input type="text" name="id" value="<?php echo $lender ? htmlspecialchars($lender['id']) : ''; ?>" class="box" disabled>
+            <input type="text" name="customer_id" value="<?php echo $lender ? htmlspecialchars($lender['customer_id']) : ''; ?>" class="box" disabled>
 
             <label for="name">Name</label>
             <input type="text" name="name" value="<?php echo $lender ? htmlspecialchars($lender['name']) : ''; ?>" class="box" required>
