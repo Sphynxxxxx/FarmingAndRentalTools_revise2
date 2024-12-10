@@ -235,6 +235,27 @@ select#categories option {
     left: 0; 
 }
 
+.back-button-container {
+    margin: 10px 0;
+}
+
+.back-button {
+    text-decoration: none;
+    color: #2F5233;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.back-button i {
+    font-size: 30px;
+}
+
+.back-button:hover {
+    color: #0056b3;
+}
+
 /* Media Queries */
 @media screen and (max-width: 768px) {
     .sidebar {

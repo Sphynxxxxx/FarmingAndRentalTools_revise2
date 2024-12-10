@@ -35,26 +35,6 @@ if ($resultCustomer->num_rows === 0) {
 $customer = $resultCustomer->fetch_assoc();
 $customer_id = $customer['customer_id'];
 
-// Fetch the lender ID from the product being ordered
-$lender_id = null;
-$productId = $orderDetails[0]['id'] ?? null; // Get the first product ID
-
-if ($productId) {
-    $sqlLender = "SELECT lender_id FROM products WHERE id = ?";
-    $stmtLender = $conn->prepare($sqlLender);
-    $stmtLender->bind_param("i", $productId);
-    $stmtLender->execute();
-    $resultLender = $stmtLender->get_result();
-
-    if ($resultLender->num_rows > 0) {
-        $lender = $resultLender->fetch_assoc();
-        $lender_id = $lender['lender_id'];
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Lender not found for the product!']);
-        exit();
-    }
-}
-
 // Generate a unique reference number
 $referenceNumber = "REF-" . date("Ymd") . "-" . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
 
@@ -64,27 +44,27 @@ try {
     // Calculate total price for the order
     $totalPrice = 0;
     foreach ($orderDetails as $item) {
-        $totalPrice += $item['quantity'] * $item['price'] + 
-                      (strtolower($deliveryMethod) === 'pickup' ? 0 : $item['shippingFee']);
+        $totalPrice += $item['quantity'] * $item['price'];
     }
 
     // Insert the order into the `orders` table
-    $stmtOrder = $conn->prepare("INSERT INTO orders (customer_id, lender_id, reference_number, delivery_method, total_price) VALUES (?, ?, ?, ?, ?)");
-    $stmtOrder->bind_param("iissd", $customer_id, $lender_id, $referenceNumber, $deliveryMethod, $totalPrice);
+    $stmtOrder = $conn->prepare("INSERT INTO orders (customer_id, reference_number, delivery_method, total_price) VALUES (?, ?, ?, ?)");
+    $stmtOrder->bind_param("issd", $customer_id, $referenceNumber, $deliveryMethod, $totalPrice);
     $stmtOrder->execute();
     $order_id = $conn->insert_id;
 
     // Insert order details into `order_details` table
-    $stmtOrderDetails = $conn->prepare("INSERT INTO order_details (order_id, product_id, quantity, price, shippingfee, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmtOrderDetails = $conn->prepare("INSERT INTO order_details (order_id, product_id, quantity, price, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)");
 
     foreach ($orderDetails as $item) {
-        $shippingFee = (strtolower($deliveryMethod) === 'pickup') ? 0 : $item['shippingFee'];
-
         // Validate and format dates
         $startDate = isset($item['start_date']) ? date('Y-m-d', strtotime($item['start_date'])) : NULL;
         $endDate = isset($item['end_date']) ? date('Y-m-d', strtotime($item['end_date'])) : NULL;
 
-        $stmtOrderDetails->bind_param("iiiddss", $order_id, $item['id'], $item['quantity'], $item['price'], $shippingFee, $startDate, $endDate);
+        // Ensure correct parameter binding
+        $stmtOrderDetails->bind_param("iiidss", $order_id, $item['id'], $item['quantity'], $item['price'], $startDate, $endDate);
+
+        // Execute the query
         if (!$stmtOrderDetails->execute()) {
             throw new Exception("Failed to insert order details.");
         }

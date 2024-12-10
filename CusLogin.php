@@ -4,7 +4,7 @@ session_start();
 $servername = "localhost"; 
 $username = "root"; 
 $password = ""; 
-$dbname = "cart_db";
+$dbname = "cart_db2";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 

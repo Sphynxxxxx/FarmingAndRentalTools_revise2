@@ -38,9 +38,7 @@ $order_details_query = "
         od.id AS detail_id,
         od.quantity, 
         od.price, 
-        od.shippingfee, 
         p.product_name, 
-        p.lender_name,
         p.image AS product_image,
         od.start_date, 
         od.end_date
@@ -85,8 +83,6 @@ body {
     align-items: center;
     justify-content: center;
 }
-
-
 
 .main-content {
     padding: 20px;
@@ -201,23 +197,12 @@ footer p {
                     <div class="order-details">
                         <?php 
                         while ($detail = $order_details_result->fetch_assoc()): 
-                            $shipping_subtotal = strtolower($order['delivery_method']) == 'pickup' ? 0 : $detail['quantity'] * $detail['shippingfee'];
-                            $subtotal = $detail['quantity'] * $detail['price'] + $shipping_subtotal;
+                            $subtotal = $detail['quantity'] * $detail['price'];
                         ?>
                         <div class="detail">
                             <h4>Product Name: <?php echo htmlspecialchars($detail['product_name']); ?></h4>
-                            <p><strong>Lender Name:</strong> <?php echo htmlspecialchars($detail['lender_name']); ?></p>
                             <p><strong>Quantity:</strong> <?php echo htmlspecialchars($detail['quantity']); ?></p>
                             <p><strong>Price:</strong> ₱<?php echo number_format($detail['price'], 2); ?></p>
-                            <p><strong>Shipping Fee:</strong> 
-                                <?php 
-                                if (strtolower($order['delivery_method']) == 'pickup') {
-                                    echo '₱0.00';
-                                } else {
-                                    echo '₱' . number_format($detail['shippingfee'], 2);
-                                }
-                                ?>
-                            </p>
                             <p><strong>Subtotal:</strong> ₱<?php echo number_format($subtotal, 2); ?></p>
                             <p><strong>Start Date:</strong> 
                                 <input type="date" id="start_date_<?php echo $detail['detail_id']; ?>" name="start_date[<?php echo $detail['detail_id']; ?>]" value="<?php echo $detail['start_date'] ?: ''; ?>">
@@ -236,7 +221,6 @@ footer p {
                 <div class="order-actions">
                     <a href="CustomerDashboard.php" class="btn">Back to Dashboard</a>
                     <a href="download_pdf.php?order_reference=<?php echo urlencode($order['reference_number']); ?>" class="btn">Download PDF</a>
-
                 </div>
 
             </div>
@@ -245,8 +229,5 @@ footer p {
             <?php endif; ?>
         </div>
     </div>
-    <script>
-    </script>
 </body>
 </html>
-

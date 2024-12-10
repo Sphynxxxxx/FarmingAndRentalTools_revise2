@@ -18,22 +18,27 @@
 
     <!-- Main Contentqwq -->
     <div class="main-content">
-        <h1>Welcome to Admin Dashboard</h1>
+        <h1>Welcome to Farming Service Provider</h1>
         <p>Here you can manage products, customers, lenders, approvals and track orders.</p>
 
         
         <div class="quick-stats">
             <div class="card">
                 <i class="fa-regular fa-circle-check"></i>
-                <h3>Products & Approvals</h3>
+                <h3>Manage Users</h3>
                 <p>Manage and Update product listings. Approve or decline pending applications.</p>
                 <a href="AdminCustomerReg.php" class="btn">Manage Approvals</a>
             </div>
             <div class="card">
                 <i class="fa-solid fa-bag-shopping"></i>
-                <h3>Orders</h3>
+                <h3>Manage Bookings</h3>
                 <p>Tracking Orders</p>
                 <a href="Delivery.php" class="btn">View Orders</a>
+            </div>
+            <div class="card">
+                <h3>Manage Tools And Equipment</h3>
+                <p>Adding Tools and Equipment</p>
+                <a href="AddProduct.php" class="btn">View Orders</a>
             </div>
         </div>
 

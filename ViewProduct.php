@@ -2,33 +2,6 @@
 session_start();
 @include 'config.php';
 
-if (!isset($_SESSION['email'])) {
-    header('Location: Login.php'); 
-    exit();
-}
-
-if (isset($_GET['delete'])) {
-    $id = intval($_GET['delete']); 
-    $select_image = $conn->prepare("SELECT image FROM products WHERE id = ?");
-    $select_image->bind_param("i", $id);
-    $select_image->execute();
-    $result = $select_image->get_result();
-    $row = $result->fetch_assoc();
-
-    if ($row) {
-        if (file_exists('uploaded_img/' . $row['image'])) {
-            unlink('uploaded_img/' . $row['image']);
-        }
-
-        $delete_stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
-        $delete_stmt->bind_param("i", $id);
-        $delete_stmt->execute();
-        $delete_stmt->close();
-    }
-
-    header('Location: LenderDashboard2.php');
-    exit();
-}
 ?>
 
 <!DOCTYPE html>
@@ -59,7 +32,7 @@ if (isset($_GET['delete'])) {
 
     /* Header and Navigation */
     nav {
-        background-color: #2F5233; /* Main color */
+        background-color: #2F5233; 
         padding: 15px;
     }
 
@@ -80,7 +53,7 @@ if (isset($_GET['delete'])) {
     }
 
     nav ul li a:hover {
-        background-color: #3a6f4c; /* Darker shade for hover */
+        background-color: #3a6f4c; 
     }
 
     /* Product Table */
@@ -129,7 +102,7 @@ if (isset($_GET['delete'])) {
     }
 
     .product-display-table td .btn:hover {
-        background-color: #3a6f4c; /* Darker shade on hover */
+        background-color: #3a6f4c; 
     }
 
     /* Modal for Image */
@@ -185,6 +158,27 @@ if (isset($_GET['delete'])) {
         background-color: #3a6f4c;
     }
 
+    .back-button-container {
+        margin: 10px 0;
+    }
+
+    .back-button {
+        text-decoration: none;
+        color: #2F5233;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+
+    .back-button i {
+        font-size: 30px;
+    }
+
+    .back-button:hover {
+        color: #0056b3;
+    }
+
     /* Mobile Responsiveness */
     @media screen and (max-width: 768px) {
         .product-display-table {
@@ -207,18 +201,8 @@ if (isset($_GET['delete'])) {
 
 </style>
 
-<div class="sidebar-toggle">
-    <i class="fa-solid fa-bars"></i>
-</div>
-
-<div class="sidebar">
-    <ul>
-        <li><button onclick="window.location.reload();" class="refresh-btn">Refresh</button></li>
-        <li><a href="Profile.php">Profile</a></li>
-        <li><a href="LenderDashboard.php">Dashboard</a></li>
-        <li><a href="order_notification.php">Orders</a></li>
-        <li><a href="Logout.php">Logout</a></li>
-    </ul>
+<div class="back-button-container">
+    <a href="AddProduct.php" class="back-button"><i class="fa-solid fa-house"></i></a>
 </div>
 
 <div class="product-display">
@@ -227,7 +211,6 @@ if (isset($_GET['delete'])) {
         <tr>
             <th>Product Image</th>
             <th>Product Name</th>
-            <th>Lender Name</th>
             <th>Location</th>
             <th>Description</th>
             <th>Quantity</th>
@@ -248,7 +231,6 @@ if (isset($_GET['delete'])) {
                     <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" height="100" alt="Product: <?php echo htmlspecialchars($row['product_name']); ?>">
                 </td>
                 <td><?php echo htmlspecialchars($row['product_name']); ?></td>
-                <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                 <td><?php echo htmlspecialchars($row['location']); ?></td>
                 <td class="description"><?php echo htmlspecialchars($row['description']); ?></td>
                 <td><?php echo max(0, $row['quantity']); ?></td>

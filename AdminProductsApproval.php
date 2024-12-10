@@ -274,7 +274,6 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
 
     <div class="sidebar">
         <a href="AdminCustomerReg.php">Borrower Admin Approval</a>
-        <a href="AdminLenderReg.php">Lender Admin Approval</a>
         <a href="AdminProductsApproval.php">Products Admin Approval</a>
         <a href="Admin.php">Back to Dashboard</a>
     </div>
@@ -294,8 +293,6 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                             <th>Description</th>
                             <th>Categories</th>
                             <th>Price</th>
-                            <th>Shipping Fee</th>
-                            <th>Lender Name</th>
                             <th>Location</th>
                             <th>Product Image</th>
                             <th>Actions</th>
@@ -309,8 +306,6 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                                 <td><?php echo htmlspecialchars($row['description']); ?></td>
                                 <td><?php echo htmlspecialchars($row['categories']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
-                                <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
-                                <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                                 <td><?php echo htmlspecialchars($row['location']); ?></td>
                                 <td>
                                     <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product Name: <?php echo htmlspecialchars($row['product_name']); ?>" style="width:200px;height:200px;">
@@ -341,8 +336,6 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                             <th>Description</th>
                             <th>Categories</th>
                             <th>Price</th>
-                            <th>Shipping Fee</th>
-                            <th>Lender Name</th>
                             <th>Location</th>
                             <th>Product Image</th>
                             <th>Actions</th>
@@ -356,8 +349,6 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                                 <td><?php echo htmlspecialchars($row['description']); ?></td>
                                 <td><?php echo htmlspecialchars($row['categories']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
-                                <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
-                                <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                                 <td><?php echo htmlspecialchars($row['location']); ?></td>
                                 <td>
                                     <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product: <?php echo htmlspecialchars($row['product_name']); ?>" style="width:100px;height:100px;">
@@ -386,8 +377,6 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                             <th>Description</th>
                             <th>Categories</th>
                             <th>Price</th>
-                            <th>Shipping Fee</th>
-                            <th>Lender Name</th>
                             <th>Location</th>
                             <th>Product Image</th>
                             <th>Actions</th>
@@ -401,8 +390,6 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
                                 <td><?php echo htmlspecialchars($row['description']); ?></td>
                                 <td><?php echo htmlspecialchars($row['categories']); ?></td>
                                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
-                                <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
-                                <td><?php echo htmlspecialchars($row['lender_name']); ?></td>
                                 <td><?php echo htmlspecialchars($row['location']); ?></td>
                                 <td>
                                     <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product: <?php echo htmlspecialchars($row['product_name']); ?>" style="width:100px;height:100px;">

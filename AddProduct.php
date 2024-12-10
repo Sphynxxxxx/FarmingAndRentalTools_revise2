@@ -2,36 +2,9 @@
 session_start();
 @include 'config.php';
 
-// Ensure the lender is logged in
-if (!isset($_SESSION['email'])) {
-    header('Location: Login.php');
-    exit();
-}
-
-// Debugging: Enable error reporting
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Fetch the lender ID based on the logged-in email
-$lender_email = $_SESSION['email'];
-$sql = "SELECT lender_id FROM lender WHERE email = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $lender_email);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    $lender = $result->fetch_assoc();
-    $lender_id = $lender['lender_id'];
-} else {
-    die("Lender not found.");
-}
-
 // Add a product
 if (isset($_POST['add_product'])) {
     $product_name = mysqli_real_escape_string($conn, $_POST['product_name']);
-    $lender_name = mysqli_real_escape_string($conn, $_POST['lender_name']);
     $location = mysqli_real_escape_string($conn, $_POST['location']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $quantity = intval($_POST['quantity']);
@@ -41,10 +14,10 @@ if (isset($_POST['add_product'])) {
     $product_image = $_FILES['product_image']['name'];
     $product_image_tmp_name = $_FILES['product_image']['tmp_name'];
     $product_image_folder = 'uploaded_img/' . basename($product_image);
-    $status = 'pending';
+    $status = 'approved';
 
     // Check if all fields are filled
-    if (empty($product_name) || empty($lender_name) || empty($location) || empty($description) || empty($quantity) || empty($product_price) || empty($categories) || empty($product_image)) {
+    if (empty($product_name) || empty($location) || empty($description) || empty($quantity) || empty($product_price) || empty($categories) || empty($product_image)) {
         $message[] = 'Please fill out all fields.';
     } elseif ($quantity <= 0 || $rent_days <= 0 || $product_price <= 0) {
         $message[] = 'Invalid input for numerical fields. Please enter valid values.';
@@ -58,8 +31,8 @@ if (isset($_POST['add_product'])) {
             $message[] = 'File upload failed. Please try again.';
         } else {
             // Prepare SQL query
-            $insert = $conn->prepare("INSERT INTO products (product_name, lender_name, lender_id, location, description, quantity, rent_days, price, categories, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $insert->bind_param("ssissiddsss", $product_name, $lender_name, $lender_id, $location, $description, $quantity, $rent_days, $product_price, $categories, $product_image, $status);
+            $insert = $conn->prepare("INSERT INTO products (product_name, location, description, quantity, rent_days, price, categories, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $insert->bind_param("sssiddsss", $product_name, $location, $description, $quantity, $rent_days, $product_price, $categories, $product_image, $status);
             
             if ($insert->execute()) {
                 // Move the uploaded file to the folder
@@ -71,7 +44,7 @@ if (isset($_POST['add_product'])) {
                 } else {
                     $message[] = 'Failed to upload image.';
                 }
-                header('Location: LenderDashboard.php');
+                header('Location: AddProduct.php');
                 exit();
             } else {
                 $message[] = 'Could not add the product: ' . $insert->error;
@@ -103,10 +76,11 @@ if (isset($_GET['delete'])) {
         $delete_stmt->close();
     }
 
-    header('Location: LenderDashboard.php');
+    header('Location: AddProduct.php');
     exit();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -114,7 +88,7 @@ if (isset($_GET['delete'])) {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lender Dashboard</title>
+    <title>Add Product</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="css\lender.css">
 </head>
@@ -128,9 +102,10 @@ if (isset($message)) {
 }
 ?>
 
-<div class="sidebar-toggle">
-    <i class="fa-solid fa-bars"></i> <!-- Hamburger Icon -->
+<div class="back-button-container">
+    <a href="admin.php" class="back-button"><i class="fa-solid fa-house"></i></a>
 </div>
+
 
 <div class="sidebar">
     <ul>
@@ -143,11 +118,9 @@ if (isset($message)) {
 
 <!-- Product Form -->
 <div class="container">
-        <form action="LenderDashboard.php" method="post" enctype="multipart/form-data">
+        <form action="AddProduct.php" method="post" enctype="multipart/form-data">
             <h3>Add a New Product</h3>
-            <input type="text" placeholder="Enter Product Name" name="product_name" class="box" required>
-            <input type="text" placeholder="Enter Lender Name" name="lender_name" class="box" required>
-            
+            <input type="text" placeholder="Enter Product Name" name="product_name" class="box" required>            
             <select id="register-address" name="location" required>
                 <option value="" disabled selected>Select Barangay</option>
                 <option value="Abangay">Abangay</option>
@@ -216,7 +189,7 @@ if (isset($message)) {
             <input type="number" placeholder="Enter Rent Price" name="product_price" class="box" required>
             <input type="file" accept="image/png, image/jpeg, image/jpg" name="product_image" class="box" required>
             <input type="submit" class="btn" name="add_product" value="Add Product">
-            <a href="LenderDashboard2.php" class="btn">View Product List</a>
+            <a href="ViewProduct.php" class="btn">View Product List</a>
         </form>
     </div>
 </div>
