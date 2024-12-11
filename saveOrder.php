@@ -47,11 +47,16 @@ try {
         $totalPrice += $item['quantity'] * $item['price'];
     }
 
+    // Define the initial order status
+    $order_status = 'pending';
+
     // Insert the order into the `orders` table
-    $stmtOrder = $conn->prepare("INSERT INTO orders (customer_id, reference_number, delivery_method, total_price) VALUES (?, ?, ?, ?)");
-    $stmtOrder->bind_param("issd", $customer_id, $referenceNumber, $deliveryMethod, $totalPrice);
-    $stmtOrder->execute();
-    $order_id = $conn->insert_id;
+    $stmtOrder = $conn->prepare("INSERT INTO orders (customer_id, reference_number, delivery_method, total_price, status) VALUES (?, ?, ?, ?, ?)");
+    $stmtOrder->bind_param("issds", $customer_id, $referenceNumber, $deliveryMethod, $totalPrice, $order_status);
+    if (!$stmtOrder->execute()) {
+        throw new Exception("Failed to insert order.");
+    }
+    $order_id = $conn->insert_id; // Get the inserted order ID
 
     // Insert order details into `order_details` table
     $stmtOrderDetails = $conn->prepare("INSERT INTO order_details (order_id, product_id, quantity, price, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)");
@@ -61,10 +66,8 @@ try {
         $startDate = isset($item['start_date']) ? date('Y-m-d', strtotime($item['start_date'])) : NULL;
         $endDate = isset($item['end_date']) ? date('Y-m-d', strtotime($item['end_date'])) : NULL;
 
-        // Ensure correct parameter binding
+        // Insert the order details
         $stmtOrderDetails->bind_param("iiidss", $order_id, $item['id'], $item['quantity'], $item['price'], $startDate, $endDate);
-
-        // Execute the query
         if (!$stmtOrderDetails->execute()) {
             throw new Exception("Failed to insert order details.");
         }
@@ -77,6 +80,19 @@ try {
         }
     }
 
+    // Create the notification message
+    $notification_message = "You have successfully placed your order.";
+    $notification_title = "Order Status Update";
+    $notification_date = date('Y-m-d H:i:s');
+
+    // Insert the notification into the `notifications` table
+    $stmtNotification = $conn->prepare("INSERT INTO notifications (customer_id, title, message, date_created, order_id) VALUES (?, ?, ?, ?, ?)");
+    $stmtNotification->bind_param("isssi", $customer_id, $notification_title, $notification_message, $notification_date, $order_id);
+    if (!$stmtNotification->execute()) {
+        throw new Exception("Failed to insert notification.");
+    }
+
+    // Commit the transaction
     $conn->commit();
 
     // Success response
@@ -85,7 +101,8 @@ try {
         'message' => 'Order placed successfully!',
         'referenceNumber' => $referenceNumber,
         'deliveryMethod' => $deliveryMethod,
-        'totalPrice' => $totalPrice
+        'totalPrice' => $totalPrice,
+        'orderStatus' => $order_status
     ]);
 
 } catch (Exception $e) {

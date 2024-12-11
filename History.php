@@ -187,7 +187,7 @@ while ($order = $resultOrders->fetch_assoc()) {
 
     // Query to get order details
     $sqlOrderDetails = "
-        SELECT od.product_id, od.quantity, od.price, od.shippingfee, p.product_name, p.image 
+        SELECT od.product_id, od.quantity, od.price, p.product_name, p.image 
         FROM order_details od
         JOIN products p ON od.product_id = p.id
         WHERE od.order_id = ?

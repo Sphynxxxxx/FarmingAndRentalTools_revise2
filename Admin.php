@@ -19,23 +19,24 @@
     <!-- Main Contentqwq -->
     <div class="main-content">
         <h1>Welcome to Farming Service Provider</h1>
-        <p>Here you can manage products, customers, lenders, approvals and track orders.</p>
+        <p>Here you can manage users, booking and track orders.</p>
 
         
         <div class="quick-stats">
             <div class="card">
                 <i class="fa-regular fa-circle-check"></i>
                 <h3>Manage Users</h3>
-                <p>Manage and Update product listings. Approve or decline pending applications.</p>
+                <p>Approve or decline pending applications.</p>
                 <a href="AdminCustomerReg.php" class="btn">Manage Approvals</a>
             </div>
             <div class="card">
                 <i class="fa-solid fa-bag-shopping"></i>
                 <h3>Manage Bookings</h3>
                 <p>Tracking Orders</p>
-                <a href="Delivery.php" class="btn">View Orders</a>
+                <a href="TrackOrder.php" class="btn">View Orders</a>
             </div>
             <div class="card">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
                 <h3>Manage Tools And Equipment</h3>
                 <p>Adding Tools and Equipment</p>
                 <a href="AddProduct.php" class="btn">View Orders</a>
@@ -50,20 +51,23 @@
         body {
             font-family: Arial, sans-serif;
             display: flex;
+            justify-content: center; 
+            align-items: center; 
             min-height: 100vh;
             margin: 0;
-            background-color: #f4f4f4; 
+            background-color: #f4f4f4;
         }
 
         .main-content {
-            margin: auto;
+            text-align: center; 
             padding: 30px;
             max-width: 1000px;
+            width: 100%;
         }
 
         .main-content h1 {
             font-size: 2.5em;
-            color: #2F5233;  
+            color: #2F5233;
             margin-bottom: 20px;
         }
 
@@ -77,31 +81,32 @@
         .quick-stats {
             display: flex;
             flex-wrap: wrap;
-            gap: 50px; 
+            gap: 50px;
+            justify-content: center; 
         }
 
         .card {
-            background-color: #fff; 
+            background-color: #fff;
             border-radius: 8px;
             padding: 20px;
-            width: 30%;  
+            width: 30%; 
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
-            flex-direction: column;  
-            justify-content: center; 
-            align-items: center;     
-            text-align: center;      
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
         }
 
         .card:hover {
-            transform: translateY(-5px); 
+            transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
         }
 
         .card h3 {
             font-size: 1.6em;
-            color: #2F5233; 
+            color: #2F5233;
             margin-bottom: 10px;
         }
 
@@ -112,7 +117,7 @@
         }
 
         .card .btn {
-            background-color: #2F5233; 
+            background-color: #2F5233;
             color: white;
             text-decoration: none;
             padding: 12px 20px;
@@ -122,19 +127,15 @@
         }
 
         .card .btn:hover {
-            background-color: #3b6c4a; 
+            background-color: #3b6c4a;
         }
 
-        .fa-regular.fa-circle-check {
+        .fa-regular.fa-circle-check,
+        .fa-solid.fa-bag-shopping,
+        .fa-solid.fa-screwdriver-wrench {
             font-size: 6em;
             color: #2F5233;
         }
-
-        .fa-solid.fa-bag-shopping {
-            font-size: 6em;
-            color: #2F5233;
-        }
-
 
         /* Responsive Design for Small Screens */
         @media (max-width: 768px) {
@@ -144,9 +145,10 @@
             }
 
             .card {
-                width: 80%;  
+                width: 80%; 
             }
         }
+
 
 
     </style>

@@ -26,9 +26,7 @@ if (isset($_GET['order_reference'])) {
                 od.id AS detail_id,
                 od.quantity, 
                 od.price, 
-                od.shippingfee, 
                 p.product_name, 
-                p.lender_name,
                 p.image AS product_image,
                 od.start_date, 
                 od.end_date
@@ -65,7 +63,6 @@ if (isset($_GET['order_reference'])) {
         $pdf->Cell(40, 10, 'Product Name', 1);
         $pdf->Cell(25, 10, 'Quantity', 1);
         $pdf->Cell(25, 10, 'Price', 1);
-        $pdf->Cell(25, 10, 'Shipping Fee', 1);
         $pdf->Cell(30, 10, 'Start Date', 1);
         $pdf->Cell(30, 10, 'End Date', 1);
         $pdf->Cell(30, 10, 'Subtotal', 1);
@@ -79,7 +76,6 @@ if (isset($_GET['order_reference'])) {
             $pdf->Cell(40, 10, $detail['product_name'], 1);
             $pdf->Cell(25, 10, $detail['quantity'], 1);
             $pdf->Cell(25, 10, '₱' . number_format($detail['price'], 2), 1);
-            $pdf->Cell(25, 10, '₱' . number_format($detail['shippingfee'], 2), 1);
             $pdf->Cell(30, 10, $detail['start_date'], 1); 
             $pdf->Cell(30, 10, $detail['end_date'], 1);  
             $pdf->Cell(30, 10, '₱' . number_format($subtotal, 2), 1);

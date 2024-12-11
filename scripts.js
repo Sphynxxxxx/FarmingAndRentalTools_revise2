@@ -69,4 +69,8 @@
     closeSummaryBtn.addEventListener('click', () => {
         orderSummary.style.display = 'none';
     });
+    
 });
+
+
+

@@ -74,7 +74,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Product Approval</title>
+    <title>Product Approval</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -273,60 +273,20 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
 <body>
 
     <div class="sidebar">
-        <a href="AdminCustomerReg.php">Borrower Admin Approval</a>
-        <a href="AdminProductsApproval.php">Products Admin Approval</a>
+        <a href="AdminCustomerReg.php">Service Admin Approval</a>
+        <a href="AdminProductsApproval.php">Product Lists</a>
         <a href="Admin.php">Back to Dashboard</a>
     </div>
 
-    <h2>Product Admin Approval</h2>
+    <h2>Product List</h2>
     <div class="container2">
 
         <!-- Pending Products -->
-        <div class="section">
-            <h2>Pending Product Registrations</h2>
-            <?php if ($pending_result && $pending_result->num_rows > 0): ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Quantity</th>
-                            <th>Description</th>
-                            <th>Categories</th>
-                            <th>Price</th>
-                            <th>Location</th>
-                            <th>Product Image</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($row = $pending_result->fetch_assoc()): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($row['product_name']); ?></td>
-                                <td><?php echo htmlspecialchars($row['quantity']); ?></td> 
-                                <td><?php echo htmlspecialchars($row['description']); ?></td>
-                                <td><?php echo htmlspecialchars($row['categories']); ?></td>
-                                <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
-                                <td><?php echo htmlspecialchars($row['location']); ?></td>
-                                <td>
-                                    <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product Name: <?php echo htmlspecialchars($row['product_name']); ?>" style="width:200px;height:200px;">
-                                </td>
-                                <td>
-                                    <a href="?approve=<?php echo $row['id']; ?>">Approve</a> | 
-                                    <a href="?decline=<?php echo $row['id']; ?>">Decline</a> |
-                                    <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p>No pending product registrations.</p>
-            <?php endif; ?>
-        </div>
+        
 
         <!-- Approved Products -->
         <div class="section">
-            <h2>Approved Products</h2>
+            <h2>Product List</h2>
             <?php if ($approved_result && $approved_result->num_rows > 0): ?>
                 <table>
                     <thead>
@@ -365,46 +325,7 @@ $declined_result = $conn->query("SELECT * FROM products WHERE status = 'declined
             <?php endif; ?>
         </div>
 
-        <!-- Declined Products -->
-        <div class="section">
-            <h2>Declined Products</h2>
-            <?php if ($declined_result && $declined_result->num_rows > 0): ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Quantity</th>
-                            <th>Description</th>
-                            <th>Categories</th>
-                            <th>Price</th>
-                            <th>Location</th>
-                            <th>Product Image</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($row = $declined_result->fetch_assoc()): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($row['product_name']); ?></td>
-                                <td><?php echo htmlspecialchars($row['quantity']); ?></td>
-                                <td><?php echo htmlspecialchars($row['description']); ?></td>
-                                <td><?php echo htmlspecialchars($row['categories']); ?></td>
-                                <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
-                                <td><?php echo htmlspecialchars($row['location']); ?></td>
-                                <td>
-                                    <img class="product-image" src="uploaded_img/<?php echo htmlspecialchars($row['image']); ?>" alt="Product: <?php echo htmlspecialchars($row['product_name']); ?>" style="width:100px;height:100px;">
-                                </td>
-                                <td>
-                                    <a href="?delete=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p>No declined product registrations.</p>
-            <?php endif; ?>
-        </div>
+       
 
     </div>
 

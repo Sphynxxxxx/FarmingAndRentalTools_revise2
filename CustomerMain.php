@@ -11,18 +11,18 @@
         <div class="form-container">
             <!-- Login Form -->
             <form id="login-form" class="form">
-                <h2>Borrower LogIn</h2>
+                <h2>LogIn</h2>
                 <input type="text" id="login-email" placeholder="Email" required>
                 <input type="password" id="login-password" placeholder="Password" required>
                 <button type="button" id="login-button">Login</button>
                 <p id="show-register">————— New User? Register Here —————</p>
-                <p id="forgot-password-link">Forgot Password?</p>
+                <!--<p id="forgot-password-link">Forgot Password?</p>-->
                 <a href="VeryMain.php" class="btn">Back</a>
             </form>
 
             <!-- Registration Form -->
             <form id="register-form" class="form hidden" enctype="multipart/form-data">
-                <h2>Borrower New Account</h2>
+                <h2>New Account</h2>
                 <input type="text" id="register-name" name="name" placeholder="Full Name" required>
                 <input type="tel" id="register-contact" name="contact" placeholder="Contact Number" required maxlength="11" oninput="validateContactNumber()">
                 
@@ -91,13 +91,13 @@
                 <button type="button" id="back-to-login-button">Back to Login</button>
             </form>
 
-            <form id="forgot-password-form" class="form hidden">
+            <!--<form id="forgot-password-form" class="form hidden">
                 <h2>Forgot Password</h2>
                 <input type="text" id="forgot-password-email" placeholder="Enter your email" required>
                 <button type="button" id="forgot-password-submit">Submit</button>
                 <p id="forgot-password-message" style="color: red;"></p>
                 <button type="button" id="back-to-login-from-forgot">Back to Login</button>
-            </form>
+            </form> -->
 
             <!-- Verification Code Form -->
             <form id="verification-form" class="form hidden">

@@ -2,26 +2,23 @@ body {
     font-family: Arial, sans-serif;
     background-color: #f9f9f9;
     color: #333;
+    padding: auto;
+    
 }
 
 .container {
-    margin: 20px auto;
-    max-width: 1200px;
+    width: 50%; 
     padding: 20px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-
-.admin-product-form-container {
-    background-color: white;
+    margin: auto;
     padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 600px;
+    
 }
+
+
+
 
 h3.title {
     text-align: center;
@@ -294,9 +291,4 @@ select#categories option {
     }
 }
 
-/* Main content */
-.container {
-    margin-left: 250px;
-    padding: 30px;
-    flex: 1;
-}
+

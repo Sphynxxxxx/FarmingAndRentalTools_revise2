@@ -91,6 +91,7 @@ body {
 
 .main-content {
   flex-grow: 1;
+  width: 100%;
   padding: 30px;
   background-color: #fff;
   transition: margin-left 0.3s ease;
@@ -195,9 +196,11 @@ body {
 
 .menu-items {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 100px;
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 50px;
+  padding: 30px; 
 }
+
 
 .item {
   width: 300px; 
@@ -276,6 +279,15 @@ body {
   background-color: #1e3a25;
 }
 
+.order-summary img {
+  width: 50px; 
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+
 .quantity-control {
   display: flex;
   align-items: center;
@@ -314,6 +326,22 @@ body {
 .rent-btn:disabled, .minus-btn:disabled, .plus-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.total {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.total p {
+  font-size: 30px;
+  margin: 10px 0;
+}
+
+#subtotal {
+  font-size: 32px;
+  color: #2F5233;
+  font-weight: bold;
 }
 
 

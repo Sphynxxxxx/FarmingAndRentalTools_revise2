@@ -91,17 +91,6 @@ h2 {
     text-decoration: underline;
 }
 
-.approved {
-    background-color: #d4edda;
-}
-
-.declined {
-    background-color: #f8d7da;
-}
-
-.pending {
-    background-color: #fff3cd;
-}
 
 .sidebar {
     background-color: #2F5233;

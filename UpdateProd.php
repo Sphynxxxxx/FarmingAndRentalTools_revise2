@@ -4,26 +4,24 @@
 $id = isset($_GET['edit']) ? intval($_GET['edit']) : null;
 
 if (!$id) {
-    header('Location: LenderDashboard2.php');
+    header('Location: AddProduct.php');
     exit();
 }
 
 if (isset($_POST['update_product'])) {
     $product_name = $_POST['product_name'];
-    $lender_name = $_POST['lender_name'];
     $location = $_POST['location'];
     $description = $_POST['description'];
     $quantity = isset($_POST['product_quantity']) ? max(0, intval($_POST['product_quantity'])) : 0;
     $rent_days = isset($_POST['rent_days']) ? intval($_POST['rent_days']) : 0;
     $categories = $_POST['categories'];
     $product_price = $_POST['product_price'];
-    $shipping_fee = $_POST['shippingfee'];
     $product_image = isset($_FILES['product_image']['name']) ? $_FILES['product_image']['name'] : '';
     $product_image_tmp_name = isset($_FILES['product_image']['tmp_name']) ? $_FILES['product_image']['tmp_name'] : '';
     $product_image_folder = 'uploaded_img/' . $product_image;
 
     // Validate inputs
-    if (empty($product_name) || empty($lender_name) || empty($location) || empty($description) || $quantity < 0 || empty($product_price) || $rent_days < 0 || empty($categories) || empty($shipping_fee)) {
+    if (empty($product_name) || empty($location) || empty($description) || $quantity < 0 || empty($product_price) || $rent_days < 0 || empty($categories)) {
         $message[] = 'Please fill out all required fields!';
     } else {
         if (!empty($product_image)) {
@@ -34,10 +32,10 @@ if (isset($_POST['update_product'])) {
                 $message[] = 'Invalid image format. Please upload a PNG or JPEG image.';
             } else {
                 // Update with a new image, automatically set status to 'approved'
-                $update_data = "UPDATE products SET product_name='$product_name', lender_name='$lender_name', location='$location', description='$description', quantity='$quantity', rent_days='$rent_days', categories='$categories', price='$product_price', shippingfee='$shipping_fee', image='$product_image', status='approved' WHERE id='$id'";
+                $update_data = "UPDATE products SET product_name='$product_name', location='$location', description='$description', quantity='$quantity', rent_days='$rent_days', categories='$categories', price='$product_price', image='$product_image', status='approved' WHERE id='$id'";
                 if (mysqli_query($conn, $update_data)) {
                     move_uploaded_file($product_image_tmp_name, $product_image_folder);
-                    header('Location: LenderDashboard2.php');
+                    header('Location: ViewProduct.php');
                     exit();
                 } else {
                     $message[] = 'Failed to update product. Please try again.';
@@ -45,9 +43,9 @@ if (isset($_POST['update_product'])) {
             }
         } else {
             // Update without a new image, automatically set status to 'approved'
-            $update_data = "UPDATE products SET product_name='$product_name', lender_name='$lender_name', location='$location', description='$description', quantity='$quantity', rent_days='$rent_days', categories='$categories', price='$product_price', shippingfee='$shipping_fee', status='approved' WHERE id='$id'";
+            $update_data = "UPDATE products SET product_name='$product_name', location='$location', description='$description', quantity='$quantity', rent_days='$rent_days', categories='$categories', price='$product_price', status='approved' WHERE id='$id'";
             if (mysqli_query($conn, $update_data)) {
-                header('Location: LenderDashboard2.php');
+                header('Location: ViewProduct.php');
                 exit();
             } else {
                 $message[] = 'Failed to update product. Please try again.';
@@ -77,7 +75,6 @@ if (isset($message)) {
 ?>
 
 <div class="container">
-   <div class="admin-product-form-container centered">
       <?php
       $select = mysqli_query($conn, "SELECT * FROM products WHERE id = '$id'");
       if ($row = mysqli_fetch_assoc($select)) {
@@ -85,7 +82,6 @@ if (isset($message)) {
       <form action="" method="post" enctype="multipart/form-data">
          <h3 class="title">Update the Product</h3>
          <input type="text" class="box" name="product_name" value="<?php echo htmlspecialchars($row['product_name']); ?>" placeholder="Enter the product name" required>
-         <input type="text" class="box" name="lender_name" value="<?php echo htmlspecialchars($row['lender_name']); ?>" placeholder="Enter the lender name" required>
          <select id="register-address" name="location" required>
                     <option value="" disabled selected>Select Barangay</option>
                     <option value="Abangay">Abangay</option>
@@ -151,10 +147,9 @@ if (isset($message)) {
                 <option value="Garden Tools">Garden Tools</option>
             </select>
          <input type="number" min="0" class="box" name="product_price" value="<?php echo htmlspecialchars($row['price']); ?>" placeholder="Enter the product price" required>
-         <input type="number" min="0" class="box" name="shippingfee" value="<?php echo htmlspecialchars($row['shippingfee']); ?>" placeholder="Enter the shipping fee" required>
          <input type="file" class="box" name="product_image" accept="image/png, image/jpeg, image/jpg">
          <input type="submit" value="Update Product" name="update_product" class="btn">
-         <a href="LenderDashboard2.php" class="btn">Go Back!</a>
+         <a href="ViewProduct.php" class="btn">Go Back!</a>
       </form>
       <?php } else { ?>
          <p>Product not found.</p>

@@ -9,7 +9,6 @@ if (!isset($_SESSION['email'])) {
 
 $profileImage = isset($_SESSION['profile_image']) ? $_SESSION['profile_image'] : 'default.png';
 
-// Fetch products (removed lender_name from select statement)
 $sql = "SELECT id, categories, product_name, location, description, rent_days, price,  created_at, image, quantity FROM products WHERE status = 'approved'";
 $result = $conn->query($sql);
 ?>
@@ -154,13 +153,10 @@ $result = $conn->query($sql);
 
     <!-- Total Calculation Section -->
     <div class="total">
-        <p>Subtotal</p>
-        <p id="subtotal">₱0.00</p>
-    </div>
-    <div class="total">
         <p><strong>Total</strong></p>
-        <p id="total-amount"><strong>₱0.00</strong></p>
+        <p id="subtotal"><strong>₱0.00</strong></p>
     </div>
+    
 
     <!-- Place Order Button -->
     <button class="place-order">Place Order</button>
@@ -198,7 +194,7 @@ $result = $conn->query($sql);
                 orderItems.forEach(item => {
                     const { id, name, price, quantity, shippingFee, image } = item;
                     subtotal += price * quantity;
-                    
+
                     // Calculate shipping fee: if Pick Up, set it to 0
                     if (deliveryMethod === 'pickup') {
                         totalShippingFee += 0; 
@@ -217,13 +213,24 @@ $result = $conn->query($sql);
                             <p>₱${price.toFixed(2)} x ${quantity} = ₱${(price * quantity).toFixed(2)}</p>
                             ${deliveryMethod === 'cod' ? `<p>Shipping Fee: ₱${(shippingFee * quantity).toFixed(2)}</p>` : ''}
                         </div>
+                        <div class="remove-btn-container">
+                            <button class="remove-btn" data-id="${id}">Remove</button>
+                        </div>
                     `;
+
+                    // Add remove functionality
+                    const removeButton = orderItem.querySelector('.remove-btn');
+                    removeButton.addEventListener('click', (e) => {
+                        const itemId = e.target.getAttribute('data-id');
+                        removeItemFromOrder(itemId);
+                    });
+
                     orderList.appendChild(orderItem);
                 });
 
                 // Update totals
                 subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
-                
+
                 // Handle shipping fee visibility based on delivery method
                 if (deliveryMethod === 'pickup') {
                     shippingFeeContainer.style.display = 'none';
@@ -235,6 +242,15 @@ $result = $conn->query($sql);
                     totalAmountElement.textContent = `₱${(subtotal + totalShippingFee).toFixed(2)}`;
                 }
             }
+
+            function removeItemFromOrder(itemId) {
+                // Remove the item from the orderItems array
+                orderItems = orderItems.filter(item => item.id !== itemId);
+
+                // Update the order summary display
+                updateOrderSummary();
+            }
+
 
             // Delivery method change event
             deliveryMethodRadios.forEach(radio => {
@@ -388,7 +404,8 @@ $result = $conn->query($sql);
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        window.location.href = 'order_details.php';
+                        alert('Your order has been placed successfully!');
+                        window.location.href = 'order_details.php'; 
                     } else {
                         alert(data.message);
                     }
@@ -397,6 +414,9 @@ $result = $conn->query($sql);
                     console.error('Error:', error);
                     alert('An error occurred. Please try again.');
                 });
+
+
+                
             });
             
             document.querySelectorAll('.rent-btn').forEach(button => {
@@ -410,6 +430,77 @@ $result = $conn->query($sql);
                 const orderSummary = document.querySelector('.order-summary');
                 orderSummary.style.display = 'none'; // Hide the order summary
             });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const notificationBell = document.querySelector('.notification-bell a');
+                const notificationsContainer = document.createElement('div');
+                notificationsContainer.classList.add('notifications-container');
+                document.body.appendChild(notificationsContainer);
+
+                // Fetch notifications from the server
+                function fetchNotifications() {
+                    fetch('fetch_notifications.php') // PHP script to get notifications for the customer
+                        .then(response => response.json())
+                        .then(data => {
+                            notificationsContainer.innerHTML = ''; // Clear previous notifications
+                            if (data && data.notifications.length > 0) {
+                                data.notifications.forEach(notification => {
+                                    const notificationElement = document.createElement('div');
+                                    notificationElement.classList.add('notification');
+                                    notificationElement.innerHTML = `
+                                        <p><strong>${notification.title}</strong></p>
+                                        <p>${notification.message}</p>
+                                        <p><small>${notification.date}</small></p>
+                                        <hr>
+                                        <button class="mark-as-read" data-id="${notification.id}">Mark as Read</button>
+                                    `;
+                                    notificationsContainer.appendChild(notificationElement);
+                                });
+                            } else {
+                                notificationsContainer.innerHTML = '<p>No new notifications.</p>';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching notifications:', error);
+                        });
+                }
+
+                // Show the notifications container when the notification bell is clicked
+                notificationBell.addEventListener('click', () => {
+                    notificationsContainer.classList.toggle('active');
+                    fetchNotifications();
+                });
+
+                // Mark notification as read
+                notificationsContainer.addEventListener('click', event => {
+                    if (event.target.classList.contains('mark-as-read')) {
+                        const notificationId = event.target.getAttribute('data-id');
+                        fetch('mark_as_read.php', { // PHP script to mark notification as read
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id: notificationId }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                event.target.parentElement.classList.add('read');
+                                event.target.remove(); // Remove the "Mark as Read" button after it's marked
+                            } else {
+                                alert('Error marking notification as read.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    }
+                });
+
+                // Fetch notifications initially when the page loads
+                fetchNotifications();
+            });
+
 
 
         });

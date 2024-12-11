@@ -16,16 +16,27 @@
         background-image: url('css/images/Pototan_hall_wide.jpg');
         background-size: cover;
         background-position: center;
+        position: relative;
         background-repeat: no-repeat;
     }
 
+    body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('css/images/Pototan_hall_wide.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        filter: blur(3px); 
+        z-index: -1; 
+    }
+
+
     .container {
-        width: 300px;
-        height: 300px;
-        background-color: rgba(255, 255, 255, 0);
-        backdrop-filter: blur(5px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        border-radius: 15px;
         display: flex; 
         flex-direction: column; 
         justify-content: center; 
@@ -33,10 +44,13 @@
     }
 
     h1 {
-        font-size: 24px;
-        margin-bottom: 20px;
-        color: #fff;
+        font-size: 50px; 
+        text-align: center; 
+        margin-bottom: 20px; 
+        padding: 0 10px; 
+        color: #2F5233; 
     }
+
 
     .btn {
         display: flex; 
@@ -45,7 +59,7 @@
         width: 200px;
         padding: 10px 20px;
         margin: 10px;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: #2F5233;
         color: white;
         text-decoration: none;
         font-size: 18px;
@@ -57,14 +71,16 @@
         background-color: rgba(76, 175, 80, 1);
     }
 
+    
+
 
 </style>
 </head>
 <body>
 
 <div class="container">
-    <a href="CustomerMain.php" class="btn">Borrower</a>
-    <a href="LenderMain.php" class="btn">Lender</a>
+    <h1>Shop and Rent the Farming Tools and Equipment</h1>
+    <a href="CustomerMain.php" class="btn">Get Started</a>
 </div>
 
 </body>

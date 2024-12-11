@@ -2,6 +2,29 @@
 session_start();
 @include 'config.php';
 
+if (isset($_GET['delete'])) {
+    $id = intval($_GET['delete']); 
+    $select_image = $conn->prepare("SELECT image FROM products WHERE id = ?");
+    $select_image->bind_param("i", $id);
+    $select_image->execute();
+    $result = $select_image->get_result();
+    $row = $result->fetch_assoc();
+
+    if ($row) {
+        if (file_exists('uploaded_img/' . $row['image'])) {
+            unlink('uploaded_img/' . $row['image']);
+        }
+
+        $delete_stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
+        $delete_stmt->bind_param("i", $id);
+        $delete_stmt->execute();
+        $delete_stmt->close();
+    }
+
+    header('Location: ViewProduct.php');
+    exit();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -216,7 +239,6 @@ session_start();
             <th>Quantity</th>
             <th>Rent Days</th>
             <th>Rent Price</th>
-            <th>Shipping Fee</th>
             <th>Category</th>
             <th>Status</th> 
             <th>Action</th>
@@ -236,12 +258,11 @@ session_start();
                 <td><?php echo max(0, $row['quantity']); ?></td>
                 <td><?php echo htmlspecialchars($row['rent_days']); ?></td>
                 <td>₱<?php echo htmlspecialchars($row['price']); ?></td>
-                <td>₱<?php echo htmlspecialchars($row['shippingfee']); ?></td>
                 <td><?php echo htmlspecialchars($row['categories']); ?></td>
                 <td><?php echo htmlspecialchars($row['status']); ?></td>
                 <td>
-                    <a href="Lender.php?edit=<?php echo $row['id']; ?>" class="btn"><i class="fas fa-edit"></i> Edit</a>
-                    <a href="LenderDashboard2.php?delete=<?php echo $row['id']; ?>" class="btn" onclick="return confirm('Are you sure you want to delete this product?');"><i class="fas fa-trash"></i> Delete</a>
+                    <a href="UpdateProd.php?edit=<?php echo $row['id']; ?>" class="btn"><i class="fas fa-edit"></i> Edit</a>
+                    <a href="ViewProduct.php?delete=<?php echo $row['id']; ?>" class="btn" onclick="return confirm('Are you sure you want to delete this product?');"><i class="fas fa-trash"></i> Delete</a>
                 </td>
             </tr>
         <?php } ?>
