@@ -15,10 +15,18 @@ if ($conn->connect_error) {
 // Handle POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Sanitize and validate inputs
-    $name = $conn->real_escape_string(trim($_POST['name']));
+    $firstname = $conn->real_escape_string(trim($_POST['firstname']));
+    $lastname = $conn->real_escape_string(trim($_POST['lastname']));
     $contact_number = $conn->real_escape_string(trim($_POST['contact']));
     $address = $conn->real_escape_string(trim($_POST['address']));
     $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+
+    // Validate if required fields are not empty
+    if (empty($firstname) || empty($lastname)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => "First name and last name are required."]);
+        exit();
+    }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         http_response_code(400);
@@ -54,6 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
+        // Create uploads directory if it doesn't exist
+        if (!file_exists('Cus_uploads')) {
+            mkdir('Cus_uploads', 0777, true);
+        }
+
         // Sanitize and generate unique file name
         $imagesName = preg_replace("/[^a-zA-Z0-9\._-]/", "", $imagesName); 
         $imagesPath = 'Cus_uploads/' . uniqid('', true) . '_' . $imagesName; 
@@ -72,9 +85,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    // Check if email already exists
+    $checkEmail = $conn->prepare("SELECT email FROM customer WHERE email = ?");
+    $checkEmail->bind_param("s", $email);
+    $checkEmail->execute();
+    $result = $checkEmail->get_result();
+    
+    if ($result->num_rows > 0) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => "Email already exists!"]);
+        $checkEmail->close();
+        exit();
+    }
+    $checkEmail->close();
+
     // Insert data into the database
-    $stmt = $conn->prepare("INSERT INTO customer (name, contact_number, address, email, password, images, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
-    $stmt->bind_param("ssssss", $name, $contact_number, $address, $email, $password, $images);
+    $stmt = $conn->prepare("INSERT INTO customer (firstname, lastname, contact_number, address, email, password, images, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')");
+    $stmt->bind_param("sssssss", $firstname, $lastname, $contact_number, $address, $email, $password, $images);
 
     if ($stmt->execute()) {
         echo json_encode(['success' => true, 'message' => "Registration successful! Awaiting approval."]);

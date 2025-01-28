@@ -74,7 +74,7 @@ $declined_result = $conn->query("SELECT * FROM customer WHERE status = 'declined
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adminsss Approval</title>
+    <title>Admin Approval</title>
     <link rel="stylesheet" href="css\Adminstyles.css?v=1.0">
 </head>
 <style>

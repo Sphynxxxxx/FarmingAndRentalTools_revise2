@@ -1,6 +1,6 @@
 <?php
 
-@include 'config.php';
+@include 'index/config.php';
 ?>
 
 <!DOCTYPE html>

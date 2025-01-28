@@ -6,8 +6,16 @@ if (!isset($_SESSION['email'])) {
     header("Location: CustomerDashboard.php"); 
     exit();
 }
+$email = $_SESSION['email'];
+$profile_query = "SELECT profile_image FROM customer WHERE email = '$email'";
+$profile_result = $conn->query($profile_query);
 
-$profileImage = isset($_SESSION['profile_image']) ? $_SESSION['profile_image'] : 'default.png';
+if ($profile_result && $profile_result->num_rows > 0) {
+    $profile_row = $profile_result->fetch_assoc();
+    $profileImage = $profile_row['profile_image'] ? $profile_row['profile_image'] : 'default.png';
+} else {
+    $profileImage = 'default.png';
+}
 
 $sql = "SELECT id, categories, product_name, location, description, rent_days, price,  created_at, image, quantity FROM products WHERE status = 'approved'";
 $result = $conn->query($sql);
@@ -45,13 +53,17 @@ $result = $conn->query($sql);
             <i class="fa-solid fa-bars"></i> 
         </div>
         <div class="user-welcome">
-          <p>Welcome, <?php echo htmlspecialchars($_SESSION['name']); ?>!</p>
+          <p>Welcome, <?php echo htmlspecialchars($_SESSION['firstname']); ?>!</p>
         </div>
         <div class="search-container">
             <input id="search-box" type="text" placeholder="Search Product here...">
             <div class="profile-picture">
                 <a href="CusProfile.php">
-                    <img src="Cusprofile_pics/<?php echo htmlspecialchars($profileImage); ?>" alt="Profile Picture" height="50" width="50">
+                    <?php if ($profileImage && file_exists("Cusprofile_pics/" . $profileImage)): ?>
+                        <img src="Cusprofile_pics/<?php echo htmlspecialchars($profileImage); ?>" alt="Profile Picture" height="50" width="50">
+                    <?php else: ?>
+                        <img src="Cusprofile_pics/default.png" alt="Default Profile Picture" height="50" width="50">
+                    <?php endif; ?>
                 </a>
             </div>
             <div class="notification-bell">

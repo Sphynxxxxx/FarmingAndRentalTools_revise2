@@ -61,7 +61,6 @@ select {
     max-width: 420px;
 }
 
-
 select option:disabled {
     color: #333; 
 }
@@ -94,30 +93,14 @@ button:hover {
     background: grey; 
 }
 
-label {
-    font-size: 1rem;
-    color: #333;
-    margin-bottom: 0.5rem;
-    text-align: left;
+/* Removed custom file input styling */
+input[type="file"] {
     width: 100%;
-}
-
-#register-image {
-    display: none;
-}
-
-.custom-file-label {
-    display: inline-block;
+    margin-bottom: 1rem;
     padding: 0.5rem;
     border: 1px solid #ddd;
-    color: #333;
     border-radius: 4px;
-    cursor: pointer;
-}
-
-.custom-file-text {
-    display: inline-block;
-    margin-left: 10px;
-    font-style: italic;
-    color: #555;
+    font-size: 1rem;
+    background-color: #fff;
+    color: #333;
 }
