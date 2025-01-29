@@ -1,32 +1,21 @@
 <?php
+include 'config.php';
 
-$host = 'localhost';
-$username = 'root';
-$password = '';
-$database = 'cart_db2'; 
-
-$conn = new mysqli($host, $username, $password, $database);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// SQL query to retrieve data from the database, including start_date and end_date
+// SQL query to retrieve data from the database
 $sql = "
     SELECT 
+        o.id AS order_id,
         p.image AS product_image,
         p.product_name,
-        c.name AS customer_name,
+        CONCAT(c.firstname, ' ', c.lastname) AS customer_name,
         od.price,  
-        c.address,
+        CONCAT(c.town, ' - ', c.address) AS full_address,
         c.contact_number,
         o.order_date,
         o.delivery_method,
         o.reference_number,
         od.start_date,
         od.end_date,
-        o.id AS order_id,
         o.status AS order_status
     FROM 
         order_details od
@@ -40,21 +29,20 @@ $sql = "
         o.order_date DESC
 ";
 
-
 $result = $conn->query($sql);
 
-// Check if query executed successfully
 if (!$result) {
     die("Error executing query: " . $conn->error);
 }
+?>
 
-echo "<!DOCTYPE html>";
-echo "<html lang='en'>
+<!DOCTYPE html>
+<html lang='en'>
 <head>
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Track Orders</title>
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css' rel='stylesheet'>
-    <title>Order Details</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -63,74 +51,85 @@ echo "<html lang='en'>
             padding: 0;
         }
         .container {
-            width: 90%;
+            width: 95%;
             margin: 20px auto;
             padding: 20px;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
         }
         header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
+            padding: 10px;
         }
-        header a {
-            text-decoration: none;
-        }
-
-        h1 {
-            color: #2F5233; 
-        }
-        
         .back-button {
             text-decoration: none;
             color: #2F5233;
-            padding: 10px 15px;
-            border-radius: 5px;
-            font-size: 30px;
-            transition: background-color 0.3s;
-        }
-        .back-button i {
-            margin-right: 5px;
+            font-size: 24px;
+            transition: color 0.3s;
+            padding: 10px;
         }
         .back-button:hover {
-            color: #0056b3;
+            color: #3b6c4a;
+        }
+        h1 {
+            color: #2F5233;
+            margin: 0;
         }
         .order-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background-color: #fff;
         }
         .order-table th, .order-table td {
             padding: 15px;
             text-align: left;
-            font-size: 14px;
             border-bottom: 1px solid #ddd;
+            vertical-align: middle;
         }
         .order-table th {
             background-color: #2F5233;
             color: #fff;
-            text-transform: uppercase;
+            font-weight: bold;
+            white-space: nowrap;
         }
-        .order-table tr:nth-child(even) {
-            background-color: #f9f9f9;
+        .order-table tr:hover {
+            background-color: #f5f5f5;
         }
-
         .order-table .product-img {
-            max-width: 100px;
-            height: auto;
-            border-radius: 8px;
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .order-table td {
-            vertical-align: middle;
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .product-name {
+            font-weight: bold;
+            margin-top: 5px;
         }
         .action-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
-        .action-buttons button {
-            padding: 8px 15px;
-            border-radius: 5px;
+        .ready-btn, .cancel-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 120px;
         }
         .ready-btn {
             background-color: #28a745;
@@ -140,177 +139,254 @@ echo "<html lang='en'>
             background-color: #dc3545;
             color: white;
         }
-        .action-buttons button:hover {
-            opacity: 0.8;
+        .ready-btn:hover, .cancel-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .order-status {
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .status-pending {
+            color: #ffc107;
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+        .status-ready {
+            color: #28a745;
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        .status-canceled {
+            color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        .status-received {
+            color: #17a2b8;
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+        .rental-period {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-size: 0.9em;
+        }
+        .date-label {
+            font-weight: bold;
+            color: #666;
+        }
+        @media (max-width: 1200px) {
+            .order-table {
+                font-size: 14px;
+            }
+            .ready-btn, .cancel-btn {
+                padding: 6px 12px;
+                min-width: 100px;
+            }
         }
         @media (max-width: 768px) {
-            .order-table th, .order-table td {
-                font-size: 12px;
+            .container {
+                width: 100%;
                 padding: 10px;
             }
-            .order-table .product-img {
-                width: 80px;
-                height: auto;
+            .order-table {
+                display: block;
+                overflow-x: auto;
             }
-            button {
-                font-size: 14px;
-                padding: 8px 12px;
-            }
-        }
-        @media (max-width: 480px) {
-            .order-table th, .order-table td {
-                font-size: 10px;
-                padding: 8px;
-            }
-            button {
-                font-size: 12px;
-                padding: 6px 10px;
+            .product-img {
+                width: 60px;
+                height: 60px;
             }
         }
     </style>
 </head>
 <body>
-
-<div class='container'>
-    <div class='main-content'>
+    <div class='container'>
         <header>
-            <!-- Back button -->
             <a href='Admin.php' class='back-button'><i class='fa-solid fa-house'></i></a>
+            <h1>Track Orders</h1>
+            <div></div>
         </header>
-        <h1>Track Orders</h1>";
 
-if ($result->num_rows > 0) {
-    // Table header
-    // Add a new table column for the status text
-echo "
-<table class='order-table'>
-    <thead>
-        <tr>
-            <th>Product Image</th>
-            <th>Product Name</th>
-            <th>Customer Name</th>
-            <th>Price</th>
-            <th>Address</th>
-            <th>Contact Number</th>
-            <th>Order Date</th>
-            <th>Delivery Method</th>
-            <th>Reference Number</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Actions</th> <!-- New Actions Column -->
-            <th>Status</th> <!-- New Status Column -->
-        </tr>
-    </thead>
-    <tbody>
-";
+        <?php if ($result->num_rows > 0): ?>
+            <table class='order-table'>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Customer</th>
+                        <th>Price</th>
+                        <th>Address</th>
+                        <th>Contact</th>
+                        <th>Order Date</th>
+                        <th>Rental Period</th>
+                        <th>Reference</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr id='order-<?php echo $row['order_id']; ?>'>
+                            <td>
+                                <div class="product-info">
+                                    <img src='uploaded_img/<?php echo htmlspecialchars($row['product_image']); ?>' 
+                                         alt='<?php echo htmlspecialchars($row['product_name']); ?>' 
+                                         class='product-img' 
+                                         onerror="this.src='uploaded_img/default_image.jpg';">
+                                    <div class="product-name"><?php echo htmlspecialchars($row['product_name']); ?></div>
+                                </div>
+                            </td>
+                            <td><?php echo htmlspecialchars($row['customer_name']); ?></td>
+                            <td>₱<?php echo number_format($row['price'], 2); ?></td>
+                            <td><?php echo htmlspecialchars($row['full_address']); ?></td>
+                            <td><?php echo htmlspecialchars($row['contact_number']); ?></td>
+                            <td><?php echo date('M d, Y', strtotime($row['order_date'])); ?></td>
+                            <td>
+                                <div class="rental-period">
+                                    <span class="date-label">Start:</span>
+                                    <?php echo date('M d, Y', strtotime($row['start_date'])); ?>
+                                    <span class="date-label">End:</span>
+                                    <?php echo date('M d, Y', strtotime($row['end_date'])); ?>
+                                </div>
+                            </td>
+                            <td><?php echo htmlspecialchars($row['reference_number']); ?></td>
+                            <td class='order-status' id='status-<?php echo $row['order_id']; ?>'>
+                                <?php echo ucfirst($row['order_status']); ?>
+                            </td>
+                            <td>
+                                <div class='action-buttons'>
+                                    <button class='ready-btn' data-order-id='<?php echo $row['order_id']; ?>'>
+                                        Ready to pickup
+                                    </button>
+                                    <button class='cancel-btn' data-order-id='<?php echo $row['order_id']; ?>'>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>No orders found.</p>
+        <?php endif; ?>
+    </div>
 
-// Add status row for each order
-while ($row = $result->fetch_assoc()) {
-    echo "
-    <tr id='order-{$row['order_id']}'>
-        <td><img src='uploaded_img/{$row['product_image']}' alt='{$row['product_name']}' class='product-img' onerror=\"this.src='uploaded_img/default_image.jpg';\"></td>
-        <td>{$row['product_name']}</td>
-        <td>{$row['customer_name']}</td>
-        <td>₱" . number_format($row['price'], 2) . "</td>
-        <td>{$row['address']}</td>
-        <td>{$row['contact_number']}</td>
-        <td>{$row['order_date']}</td>
-        <td>" . ucfirst($row['delivery_method']) . "</td>
-        <td>{$row['reference_number']}</td>
-        <td>{$row['start_date']}</td>
-        <td>{$row['end_date']}</td>
-        <td>
-            <div class='action-buttons'>
-                <button class='ready-btn' data-order-id='{$row['order_id']}'>Ready to pick up</button>
-                <button class='cancel-btn' data-order-id='{$row['order_id']}'>Cancel</button>
-            </div>
-        </td>
-        <td class='order-status' id='status-{$row['order_id']}'></td> 
-    </tr>
-    ";
-}
+    <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+    <script>
+    $(document).ready(function() {
+        function fetchOrderStatuses() {
+            $.ajax({
+                url: 'fetch_order_status.php',
+                type: 'GET',
+                success: function(response) {
+                    const statuses = JSON.parse(response);
+                    statuses.forEach(function(order) {
+                        const statusCell = $('#status-' + order.id);
+                        let statusText;
+                        let statusClass;
 
-echo "</tbody></table>";
+                        switch(order.status) {
+                            case 'pending':
+                                statusText = 'Pending';
+                                statusClass = 'status-pending';
+                                break;
+                            case 'ready_to_pick_up':
+                                statusText = 'Ready for Pickup';
+                                statusClass = 'status-ready';
+                                break;
+                            case 'canceled':
+                                statusText = 'Canceled';
+                                statusClass = 'status-canceled';
+                                break;
+                            case 'received':
+                                statusText = 'Received';
+                                statusClass = 'status-received';
+                                break;
+                            default:
+                                statusText = order.status;
+                                statusClass = '';
+                        }
 
-} else {
-    echo "<p>No orders found.</p>";
-}
-
-echo "</div>";  
-echo "</div>";  
-
-$conn->close();
-
-echo "
-<script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
-<script>
-$(document).ready(function() {
-    // Fetch current status on page load
-    fetchOrderStatuses();
-
-    // Handle Ready to pick up button click
-    $('.ready-btn').click(function() {
-        var orderId = $(this).data('order-id');
-        updateOrderStatus(orderId, 'ready_to_pick_up');
-        disableOtherButton(orderId, 'ready'); 
-    });
-
-    // Handle Cancel button click
-    $('.cancel-btn').click(function() {
-        var orderId = $(this).data('order-id');
-        updateOrderStatus(orderId, 'canceled');
-        disableOtherButton(orderId, 'cancel'); 
-    });
-
-    // Update order status via AJAX
-    function updateOrderStatus(orderId, status) {
-        $.ajax({
-            url: 'update_order_status.php',
-            type: 'POST',
-            data: {
-                order_id: orderId,
-                status: status
-            },
-            success: function(response) {
-                if (response == 'success') {
-                    // Display the status in the corresponding status column
-                    var displayStatus = (status === 'ready_to_pick_up') ? 'Ready to Pickup' : 'Canceled';
-                    $('#status-' + orderId).text(displayStatus);
-                    $('#status-' + orderId).css('color', (status === 'ready_to_pick_up') ? 'green' : 'red');
-                    alert('Order status updated successfully');
-                } else {
-                    alert('Failed to update order status');
+                        statusCell.text(statusText);
+                        statusCell.attr('class', 'order-status ' + statusClass);
+                    });
                 }
-            },
-            error: function() {
-                alert('An error occurred while updating the order status');
+            });
+        }
+
+        $('.ready-btn').click(function() {
+            const orderId = $(this).data('order-id');
+            const statusCell = $('#status-' + orderId);
+            const currentStatus = statusCell.text();
+            
+            if (currentStatus === 'Ready for Pickup') {
+                if (confirm('Set this order back to Pending?')) {
+                    updateOrderStatus(orderId, 'pending');
+                }
+            } else {
+                if (confirm('Mark this order as Ready for Pickup?')) {
+                    updateOrderStatus(orderId, 'ready_to_pick_up');
+                }
             }
         });
-    }
 
-    // Fetch the current status of orders when the page loads
-    function fetchOrderStatuses() {
-        $.ajax({
-            url: 'fetch_order_status.php', // PHP file to fetch status
-            type: 'GET',
-            success: function(response) {
-                var statuses = JSON.parse(response);
-                statuses.forEach(function(order) {
-                    // Update the status column for each order
-                    var displayStatus = (order.status === 'ready_to_pick_up') ? 'Ready to Pickup' : order.status.charAt(0).toUpperCase() + order.status.slice(1);
-                    $('#status-' + order.id).text(displayStatus);
-                    $('#status-' + order.id).css('color', order.status === 'ready_to_pick_up' ? 'green' : 'red');
-                });
-            },
-            error: function() {
-                alert('An error occurred while fetching the order statuses');
+        $('.cancel-btn').click(function() {
+            const orderId = $(this).data('order-id');
+            const statusCell = $('#status-' + orderId);
+            const currentStatus = statusCell.text();
+            
+            if (currentStatus === 'Canceled') {
+                if (confirm('Set this order back to Pending?')) {
+                    updateOrderStatus(orderId, 'pending');
+                }
+            } else {
+                if (confirm('Are you sure you want to cancel this order?')) {
+                    updateOrderStatus(orderId, 'canceled');
+                }
             }
         });
-    }
 
-});
-</script>
+        function updateOrderStatus(orderId, status) {
+            $.ajax({
+                url: 'update_order_status.php',
+                type: 'POST',
+                data: { 
+                    order_id: orderId, 
+                    status: status 
+                },
+                success: function(response) {
+                    if (response === 'success') {
+                        fetchOrderStatuses();
+                        let message = '';
+                        switch(status) {
+                            case 'pending':
+                                message = 'Order has been set to Pending';
+                                break;
+                            case 'ready_to_pick_up':
+                                message = 'Order is now Ready for Pickup';
+                                break;
+                            case 'canceled':
+                                message = 'Order has been Canceled';
+                                break;
+                            default:
+                                message = 'Order status updated successfully';
+                        }
+                        alert(message);
+                    } else {
+                        alert('Failed to update order status');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while updating the status');
+                }
+            });
+        }
 
+        fetchOrderStatuses();
+        setInterval(fetchOrderStatuses, 30000);
+    });
+    </script>
 </body>
-</html>";
-?>
+</html>
+<?php $conn->close(); ?>

@@ -189,7 +189,6 @@ if (isset($message)) {
             <input type="number" placeholder="Enter Rent Price" name="product_price" class="box" required>
             <input type="file" accept="image/png, image/jpeg, image/jpg" name="product_image" class="box" required>
             <input type="submit" class="btn" name="add_product" value="Add Product">
-            <a href="ViewProduct.php" class="btn">View Product List</a>
         </form>
     </div>
 </div>

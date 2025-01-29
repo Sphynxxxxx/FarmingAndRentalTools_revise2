@@ -18,7 +18,7 @@
 
     <!-- Main Contentqwq -->
     <div class="main-content">
-        <h1>Welcome to Farming Service Provider</h1>
+        <h1>Admin Side of Farming Service Provider</h1>
         <p>Here you can manage users, booking and track orders.</p>
 
         
@@ -36,11 +36,24 @@
                 <a href="TrackOrder.php" class="btn">View Orders</a>
             </div>
             <div class="card">
+                <i class="fa-solid fa-money-bill"></i>
+                <h3>Manage Payment</h3>
+                <p>Track Payment Status</p>
+                <a href="ManagePayments.php" class="btn">View Payment</a>
+            </div>
+            <div class="card">
                 <i class="fa-solid fa-screwdriver-wrench"></i>
                 <h3>Manage Tools And Equipment</h3>
                 <p>Adding Tools and Equipment</p>
-                <a href="AddProduct.php" class="btn">View Orders</a>
+                <a href="AddProduct.php" class="btn">Add Product</a>
             </div>
+            <div class="card">
+                <i class="fa-solid fa-toolbox"></i>
+                <h3>Check Tools And Equipment</h3>
+                <p>View Tools and Equipment</p>
+                <a href="ViewProduct.php" class="btn">View Product</a>
+            </div>
+            
         </div>
 
         
@@ -80,16 +93,20 @@
         /* Quick Stats Cards */
         .quick-stats {
             display: flex;
-            flex-wrap: wrap;
-            gap: 50px;
-            justify-content: center; 
+            flex-direction: row; 
+            justify-content: center;
+            gap: 50px; 
+            flex-wrap: nowrap;
+            width: 100%;
+            padding: 20px;
         }
 
         .card {
             background-color: #fff;
             border-radius: 8px;
-            padding: 20px;
-            width: 30%; 
+            padding: 50px;
+            width: calc(25% - 20px); 
+            min-width: 200px; 
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
@@ -97,7 +114,9 @@
             justify-content: center;
             align-items: center;
             text-align: center;
+            flex: 1; 
         }
+
 
         .card:hover {
             transform: translateY(-5px);
@@ -132,12 +151,24 @@
 
         .fa-regular.fa-circle-check,
         .fa-solid.fa-bag-shopping,
-        .fa-solid.fa-screwdriver-wrench {
+        .fa-solid.fa-screwdriver-wrench,
+        .fa-solid.fa-toolbox, 
+        .fa-solid.fa-money-bill{
             font-size: 6em;
             color: #2F5233;
         }
 
-        /* Responsive Design for Small Screens */
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .quick-stats {
+                flex-wrap: wrap;
+            }
+
+            .card {
+                width: calc(50% - 20px); 
+            }
+        }
+
         @media (max-width: 768px) {
             .quick-stats {
                 flex-direction: column;
@@ -145,7 +176,8 @@
             }
 
             .card {
-                width: 80%; 
+                width: 80%;
+                margin-bottom: 20px;
             }
         }
 

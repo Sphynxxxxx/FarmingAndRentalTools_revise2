@@ -1,6 +1,8 @@
 <?php
 session_start();
-include '../connections/config.php';
+include 'config.php';
+
+header('Content-Type: application/json');
 
 if (!isset($_SESSION['email'])) {
     echo json_encode(['success' => false, 'message' => 'User not logged in']);
@@ -19,8 +21,9 @@ if (!$data || !isset($data['orderDetails']) || empty($data['orderDetails'])) {
 $conn->begin_transaction();
 
 try {
+    // Get customer ID using email from session
     $email = $_SESSION['email'];
-    $customerQuery = "SELECT id FROM customers WHERE email = ?";
+    $customerQuery = "SELECT customer_id FROM customer WHERE email = ?";
     $stmt = $conn->prepare($customerQuery);
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -31,102 +34,101 @@ try {
     }
     
     $customer = $result->fetch_assoc();
-    $customerId = $customer['id'];
+    $customerId = $customer['customer_id'];
 
     // Generate unique reference number
-    $referenceNumber = 'AHL-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 4));
+    $referenceNumber = 'REF-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 6));
 
+    // Calculate total price
     $totalPrice = 0;
     foreach ($data['orderDetails'] as $item) {
         $totalPrice += $item['price'] * $item['quantity'];
     }
 
     // Insert into orders table
-    $orderQuery = "INSERT INTO orders (customer_id, delivery_method, reference_number, total_price, order_date) 
-                   VALUES (?, ?, ?, ?, NOW())";
+    $orderQuery = "INSERT INTO orders (customer_id, reference_number, delivery_method, total_price, order_date, status) 
+                   VALUES (?, ?, ?, ?, NOW(), 'pending')";
     $stmt = $conn->prepare($orderQuery);
     $deliveryMethod = $data['deliveryMethod'] ?? 'pickup';
-    $stmt->bind_param("issd", $customerId, $deliveryMethod, $referenceNumber, $totalPrice);
-    $stmt->execute();
+    $stmt->bind_param("issd", $customerId, $referenceNumber, $deliveryMethod, $totalPrice);
+    
+    if (!$stmt->execute()) {
+        throw new Exception("Failed to create order: " . $stmt->error);
+    }
+    
     $orderId = $conn->insert_id;
 
-    // Insert order details and remove from cart
+    // Insert order details and update product quantities
+    $detailQuery = "INSERT INTO order_details (order_id, product_id, quantity, price, start_date, end_date) 
+                    VALUES (?, ?, ?, ?, ?, ?)";
+    $detailStmt = $conn->prepare($detailQuery);
+
     foreach ($data['orderDetails'] as $item) {
-        // Insert order detail
-        $detailQuery = "INSERT INTO order_details (order_id, product_id, quantity, price) 
-                    VALUES (?, ?, ?, ?)";
-        $detailStmt = $conn->prepare($detailQuery);
-        $detailStmt->bind_param("iiid", $orderId, $item['id'], $item['quantity'], $item['price']);
-        $detailStmt->execute();
-
-        // Remove item from cart
-        $deleteCartQuery = "DELETE FROM carts WHERE customer_id = ? AND product_id = ?";
-        $deleteCartStmt = $conn->prepare($deleteCartQuery);
-        $deleteCartStmt->bind_param("ii", $customerId, $item['id']);
-        $deleteCartStmt->execute();
-
-        // Update product quantity in the products table
-        $productId = $item['id'];
-        $quantityOrdered = $item['quantity'];
-
-        $stockQuery = "SELECT quantity FROM products WHERE product_id = ?";
+        // Check product availability
+        $stockQuery = "SELECT quantity FROM products WHERE id = ? FOR UPDATE";
         $stockStmt = $conn->prepare($stockQuery);
-        $stockStmt->bind_param("i", $productId);
+        $stockStmt->bind_param("i", $item['id']);
         $stockStmt->execute();
         $stockResult = $stockStmt->get_result();
+        
+        if ($stockResult->num_rows === 0) {
+            throw new Exception("Product not found: ID " . $item['id']);
+        }
+        
+        $product = $stockResult->fetch_assoc();
+        if ($product['quantity'] < $item['quantity']) {
+            throw new Exception("Insufficient stock for product ID " . $item['id']);
+        }
 
-        if ($stockResult->num_rows > 0) {
-            $product = $stockResult->fetch_assoc();
-            $currentQuantity = $product['quantity'];
+        // Insert order detail
+        $detailStmt->bind_param(
+            "iiidss", 
+            $orderId, 
+            $item['id'], 
+            $item['quantity'], 
+            $item['price'],
+            $data['start_date'],
+            $data['end_date']
+        );
+        
+        if (!$detailStmt->execute()) {
+            throw new Exception("Failed to create order detail: " . $detailStmt->error);
+        }
 
-            // Check if enough stock is available
-            if ($currentQuantity >= $quantityOrdered) {
-                // Update the product quantity
-                $updateStockQuery = "UPDATE products SET quantity = quantity - ? WHERE product_id = ?";
-                $updateStockStmt = $conn->prepare($updateStockQuery);
-                $updateStockStmt->bind_param("ii", $quantityOrdered, $productId);
-                $updateStockStmt->execute();
-            } else {
-                // Not enough stock available
-                throw new Exception("Insufficient stock for product: " . $item['product_name']);
-            }
-        } else {
-            throw new Exception("Product not found in stock: " . $item['product_name']);
+        // Update product quantity
+        $updateStock = "UPDATE products SET quantity = quantity - ? WHERE id = ?";
+        $updateStmt = $conn->prepare($updateStock);
+        $updateStmt->bind_param("ii", $item['quantity'], $item['id']);
+        
+        if (!$updateStmt->execute()) {
+            throw new Exception("Failed to update product quantity: " . $updateStmt->error);
         }
     }
 
-    // Create the notification message
-    $notification_message = "You have successfully placed your order.";
-    $notification_title = "Order Status Update";
-    $notification_date = date('Y-m-d H:i:s');
-
-    // Insert the notification into the `notifications` table
-    $stmtNotification = $conn->prepare("INSERT INTO notifications (customer_id, title, message, date_created, order_id) 
-                                        VALUES (?, ?, ?, ?, ?)");
-    $stmtNotification->bind_param("isssi", $customerId, $notification_title, $notification_message, $notification_date, $orderId);
-    if (!$stmtNotification->execute()) {
-        throw new Exception("Failed to insert notification.");
+    // Create notification
+    $notifyQuery = "INSERT INTO notifications (customer_id, title, message, date_created, order_id) 
+                    VALUES (?, 'Order Status Update', 'You have successfully placed your order.', NOW(), ?)";
+    $notifyStmt = $conn->prepare($notifyQuery);
+    $notifyStmt->bind_param("ii", $customerId, $orderId);
+    
+    if (!$notifyStmt->execute()) {
+        throw new Exception("Failed to create notification: " . $notifyStmt->error);
     }
 
     // Commit transaction
     $conn->commit();
 
-    $_SESSION['last_order_reference'] = $referenceNumber;
-
-    // Success response
     echo json_encode([
         'success' => true,
         'message' => 'Order placed successfully!',
-        'referenceNumber' => $referenceNumber,
-        'deliveryMethod' => $deliveryMethod,
-        'totalPrice' => $totalPrice
+        'referenceNumber' => $referenceNumber
     ]);
 
 } catch (Exception $e) {
-    // Rollback in case of error
+    // Rollback transaction on error
     $conn->rollback();
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+} finally {
+    $conn->close();
 }
-
-$conn->close();
 ?>
